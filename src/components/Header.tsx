@@ -16,13 +16,13 @@ const Header = () => {
   const location = useLocation();
 
   return (
-    <header className="sticky top-0 z-50 bg-glass border-b border-border/50">
+    <header className="sticky top-0 z-50 bg-field border-b border-primary/20 backdrop-blur-sm">
       <div className="container flex items-center justify-between h-16">
-        <Link to="/" className="flex items-center gap-3">
-          <img src={logoCopa} alt="Copa Pampa Fut 7 2026" className="h-10 w-10 rounded-lg object-cover shadow-card" />
-          <div>
-            <span className="font-display text-2xl leading-none text-foreground tracking-wide">COPA PAMPA</span>
-            <span className="block text-[10px] text-muted-foreground font-body font-medium tracking-widest">FUT 7 • 2026</span>
+        <Link to="/" className="flex items-center gap-2">
+          <img src={logoCopa} alt="Copa Pampa Fut 7 2026" className="h-12 w-12 rounded-full object-cover" />
+          <div className="hidden sm:block">
+            <span className="font-display text-lg font-bold text-field-foreground tracking-wide">COPA PAMPA</span>
+            <span className="block text-xs text-primary-foreground/70 font-body -mt-1">FUT 7 • 2026</span>
           </div>
         </Link>
 
@@ -31,10 +31,10 @@ const Header = () => {
             <Link
               key={item.path}
               to={item.path}
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+              className={`px-4 py-2 text-sm font-display uppercase tracking-wider transition-colors rounded-md ${
                 location.pathname === item.path
-                  ? "bg-primary text-primary-foreground shadow-glow-green"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-field-foreground/80 hover:text-primary-foreground hover:bg-primary/30"
               }`}
             >
               {item.label}
@@ -42,22 +42,22 @@ const Header = () => {
           ))}
         </nav>
 
-        <button onClick={() => setOpen(!open)} className="md:hidden text-foreground p-2 rounded-lg hover:bg-muted transition-colors">
-          {open ? <X size={22} /> : <Menu size={22} />}
+        <button onClick={() => setOpen(!open)} className="md:hidden text-field-foreground p-2">
+          {open ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
 
       {open && (
-        <nav className="md:hidden bg-glass border-t border-border/50 pb-3">
+        <nav className="md:hidden bg-field border-t border-primary/20 pb-4">
           {navItems.map((item) => (
             <Link
               key={item.path}
               to={item.path}
               onClick={() => setOpen(false)}
-              className={`block px-6 py-3 text-sm font-medium transition-colors ${
+              className={`block px-6 py-3 font-display uppercase tracking-wider text-sm ${
                 location.pathname === item.path
-                  ? "text-primary bg-primary/5"
-                  : "text-muted-foreground"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-field-foreground/80"
               }`}
             >
               {item.label}

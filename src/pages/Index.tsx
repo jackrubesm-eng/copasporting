@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Trophy, Users, Calendar, Target, ChevronRight } from "lucide-react";
+import { Trophy, Users, Calendar, Target } from "lucide-react";
 import logoCopa from "@/assets/logo-copa.jpeg";
-import mascote from "@/assets/mascote-nobg.png";
+import mascote from "@/assets/mascote.jpeg";
 import { teams, categories, getMatches, getTopScorers } from "@/data/teams";
 import MatchCard from "@/components/MatchCard";
 
@@ -14,45 +14,38 @@ const Index = () => {
   return (
     <div>
       {/* Hero */}
-      <section className="bg-hero-gradient bg-hero-mesh relative overflow-hidden min-h-[80vh] flex items-center">
-        {/* Subtle grid pattern */}
-        <div className="absolute inset-0 opacity-[0.03]" style={{
-          backgroundImage: "linear-gradient(hsl(0 0% 100%) 1px, transparent 1px), linear-gradient(90deg, hsl(0 0% 100%) 1px, transparent 1px)",
-          backgroundSize: "60px 60px"
-        }} />
+      <section className="bg-hero-gradient relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-10 left-10 w-40 h-40 rounded-full bg-secondary blur-3xl" />
+          <div className="absolute bottom-10 right-10 w-60 h-60 rounded-full bg-primary blur-3xl" />
+        </div>
 
-        <div className="container relative py-16 md:py-24">
-          <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
+        <div className="container relative py-12 md:py-20">
+          <div className="flex flex-col md:flex-row items-center gap-8">
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, ease: "easeOut" }}
+              transition={{ duration: 0.6 }}
               className="flex-1 text-center md:text-left"
             >
-              <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-4 py-1.5 mb-6">
-                <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                <span className="text-xs font-medium text-primary-foreground/80 tracking-wider uppercase">Temporada 2026</span>
-              </div>
-
-              <h1 className="text-6xl md:text-8xl lg:text-9xl font-display text-field-foreground tracking-tight leading-[0.9]">
-                COPA<br />PAMPA
+              <img src={logoCopa} alt="Copa Pampa Fut 7 2026" className="h-32 w-32 mx-auto md:mx-0 rounded-2xl object-cover shadow-sport mb-6" />
+              <h1 className="text-4xl md:text-6xl font-display font-bold text-field-foreground tracking-tight leading-tight">
+                COPA PAMPA
+                <span className="block text-gradient-gold">FUT 7 — 2026</span>
               </h1>
-              <p className="font-display text-2xl md:text-3xl text-gradient-gold tracking-wider mt-2">
-                FUTEBOL 7
+              <p className="mt-4 text-field-foreground/70 text-lg max-w-md">
+                O maior torneio de Futebol 7 da região metropolitana do Rio Grande do Sul.
               </p>
-              <p className="mt-5 text-field-foreground/50 text-base max-w-md font-light leading-relaxed">
-                O maior torneio de Futebol 7 da região metropolitana do Rio Grande do Sul. 5 categorias, 6 equipes, pura paixão.
-              </p>
-              <div className="mt-8 flex flex-wrap gap-3 justify-center md:justify-start">
+              <div className="mt-6 flex flex-wrap gap-3 justify-center md:justify-start">
                 <Link
                   to="/categorias"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground font-semibold text-sm rounded-xl hover:bg-primary/90 transition-all shadow-glow-green"
+                  className="px-6 py-3 bg-primary text-primary-foreground font-display uppercase tracking-wider text-sm rounded-lg hover:bg-primary/90 transition-colors shadow-sport"
                 >
-                  Ver Categorias <ChevronRight size={16} />
+                  Ver Categorias
                 </Link>
                 <Link
                   to="/times"
-                  className="inline-flex items-center gap-2 px-6 py-3 border border-field-foreground/20 text-field-foreground font-semibold text-sm rounded-xl hover:bg-field-foreground/5 transition-all"
+                  className="px-6 py-3 bg-secondary text-secondary-foreground font-display uppercase tracking-wider text-sm rounded-lg hover:bg-secondary/90 transition-colors"
                 >
                   Equipes
                 </Link>
@@ -60,86 +53,62 @@ const Index = () => {
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, scale: 0.85 }}
+              initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.7, delay: 0.15, ease: "easeOut" }}
-              className="flex-shrink-0 relative"
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="flex-shrink-0"
             >
-              <div className="absolute -inset-8 bg-primary/10 rounded-full blur-3xl animate-pulse" />
-              <img src={mascote} alt="Mascote Quero-Quero" className="h-72 md:h-96 object-contain drop-shadow-2xl relative animate-float" />
+              <img src={mascote} alt="Mascote Quero-Quero" className="h-64 md:h-80 object-contain drop-shadow-2xl" />
             </motion.div>
           </div>
         </div>
       </section>
 
       {/* Stats */}
-      <section className="container -mt-8 relative z-10">
+      <section className="container -mt-6 relative z-10">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
             { icon: Trophy, label: "Categorias", value: "5" },
             { icon: Users, label: "Equipes", value: "6" },
             { icon: Calendar, label: "Rodadas", value: "5" },
             { icon: Target, label: "Jogos", value: "75" },
-          ].map((stat, i) => (
-            <motion.div
-              key={stat.label}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 + i * 0.1 }}
-              className="bg-card rounded-xl border border-border shadow-card p-5 text-center"
-            >
-              <stat.icon className="h-5 w-5 text-primary mx-auto mb-2" strokeWidth={1.5} />
-              <p className="font-display text-3xl text-foreground">{stat.value}</p>
-              <p className="text-[11px] text-muted-foreground uppercase tracking-widest font-medium">{stat.label}</p>
-            </motion.div>
+          ].map((stat) => (
+            <div key={stat.label} className="bg-card rounded-lg border border-border shadow-card-sport p-4 text-center">
+              <stat.icon className="h-5 w-5 text-primary mx-auto mb-1" />
+              <p className="font-display text-2xl font-bold text-foreground">{stat.value}</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">{stat.label}</p>
+            </div>
           ))}
         </div>
       </section>
 
       {/* Categories */}
-      <section className="container py-16">
-        <div className="flex items-end justify-between mb-6">
-          <div>
-            <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-1">Divisões</p>
-            <h2 className="font-display text-4xl text-foreground tracking-tight">CATEGORIAS</h2>
-          </div>
-          <Link to="/categorias" className="text-sm text-muted-foreground hover:text-primary transition-colors hidden md:inline-flex items-center gap-1">
-            Ver todas <ChevronRight size={14} />
-          </Link>
-        </div>
+      <section className="container py-12">
+        <h2 className="font-display text-2xl font-bold text-foreground mb-6 uppercase tracking-wider">Categorias</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-          {categories.map((cat, i) => (
-            <motion.div
+          {categories.map((cat) => (
+            <Link
               key={cat}
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.1 * i }}
+              to={`/categorias/${encodeURIComponent(cat)}`}
+              className="bg-card border border-border rounded-lg p-5 text-center hover:shadow-sport hover:border-primary/40 transition-all group"
             >
-              <Link
-                to={`/categorias/${encodeURIComponent(cat)}`}
-                className="block bg-card border border-border rounded-xl p-6 text-center hover:shadow-card-hover hover:border-primary/30 transition-all duration-300 group"
-              >
-                <span className="font-display text-3xl text-foreground group-hover:text-gradient-green transition-colors">{cat}</span>
-                <p className="text-xs text-muted-foreground mt-1">6 times</p>
-              </Link>
-            </motion.div>
+              <span className="font-display text-xl font-bold text-primary group-hover:text-gradient-gold transition-colors">{cat}</span>
+            </Link>
           ))}
         </div>
       </section>
 
-      {/* Matches */}
-      <section className="bg-muted/50 py-16">
-        <div className="container grid md:grid-cols-2 gap-10">
+      {/* Recent Matches + Top Scorers */}
+      <section className="bg-muted py-12">
+        <div className="container grid md:grid-cols-2 gap-8">
           <div>
-            <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-1">Resultados</p>
-            <h2 className="font-display text-3xl text-foreground tracking-tight mb-5">ÚLTIMOS JOGOS</h2>
+            <h2 className="font-display text-xl font-bold text-foreground mb-4 uppercase tracking-wider">Últimos Resultados</h2>
             <div className="space-y-3">
               {recentMatches.map(m => <MatchCard key={m.id} match={m} />)}
             </div>
           </div>
           <div>
-            <p className="text-xs font-semibold text-gold uppercase tracking-widest mb-1">Agenda</p>
-            <h2 className="font-display text-3xl text-foreground tracking-tight mb-5">PRÓXIMOS JOGOS</h2>
+            <h2 className="font-display text-xl font-bold text-foreground mb-4 uppercase tracking-wider">Próximos Jogos</h2>
             <div className="space-y-3">
               {nextMatches.map(m => <MatchCard key={m.id} match={m} />)}
             </div>
@@ -148,28 +117,21 @@ const Index = () => {
       </section>
 
       {/* Top Scorers */}
-      <section className="container py-16">
-        <p className="text-xs font-semibold text-accent uppercase tracking-widest mb-1">Goleadores</p>
-        <h2 className="font-display text-3xl text-foreground tracking-tight mb-5">ARTILHEIROS</h2>
-        <div className="bg-card border border-border rounded-xl overflow-hidden shadow-card">
+      <section className="container py-12">
+        <h2 className="font-display text-xl font-bold text-foreground mb-4 uppercase tracking-wider">Artilheiros</h2>
+        <div className="bg-card border border-border rounded-lg overflow-hidden shadow-card-sport">
           {topScorers.map((scorer, i) => {
             const team = teams.find(t => t.id === scorer.teamId);
             return (
-              <div key={i} className={`flex items-center gap-4 px-5 py-4 ${i > 0 ? "border-t border-border/50" : ""} hover:bg-primary/[0.02] transition-colors`}>
-                <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full font-display text-lg ${
-                  i === 0 ? "bg-gold text-gold-foreground" : i === 1 ? "bg-muted text-muted-foreground" : "text-muted-foreground"
-                }`}>
-                  {i + 1}
-                </span>
-                {team && <img src={team.logo} alt={team.shortName} className="h-8 w-8 rounded-full object-cover" />}
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-foreground text-sm truncate">{scorer.name}</p>
+              <div key={i} className={`flex items-center gap-3 px-4 py-3 ${i > 0 ? "border-t border-border" : ""}`}>
+                <span className="font-display font-bold text-lg text-muted-foreground w-8">{i + 1}º</span>
+                {team && <img src={team.logo} alt={team.shortName} className="h-7 w-7 rounded-full object-cover" />}
+                <div className="flex-1">
+                  <p className="font-medium text-foreground text-sm">{scorer.name}</p>
                   <p className="text-xs text-muted-foreground">{team?.shortName}</p>
                 </div>
-                <div className="text-right">
-                  <span className="font-display text-2xl text-primary">{scorer.goals}</span>
-                  <span className="text-xs text-muted-foreground ml-1">gols</span>
-                </div>
+                <span className="font-display text-xl font-bold text-primary">{scorer.goals}</span>
+                <span className="text-xs text-muted-foreground">gols</span>
               </div>
             );
           })}
@@ -177,21 +139,20 @@ const Index = () => {
       </section>
 
       {/* Teams */}
-      <section className="bg-field py-16">
+      <section className="bg-field py-12">
         <div className="container">
-          <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-1 text-center">Participantes</p>
-          <h2 className="font-display text-3xl text-field-foreground tracking-tight mb-8 text-center">EQUIPES</h2>
-          <div className="grid grid-cols-3 md:grid-cols-6 gap-5">
+          <h2 className="font-display text-xl font-bold text-field-foreground mb-6 uppercase tracking-wider">Equipes Participantes</h2>
+          <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
             {teams.map((team) => (
               <Link
                 key={team.id}
                 to={`/times/${team.id}`}
-                className="flex flex-col items-center gap-3 group"
+                className="flex flex-col items-center gap-2 group"
               >
-                <div className="bg-card/10 backdrop-blur rounded-2xl p-3 group-hover:bg-card/20 transition-all duration-300 group-hover:shadow-glow-green">
-                  <img src={team.logo} alt={team.shortName} className="h-16 w-16 md:h-20 md:w-20 rounded-xl object-cover" />
+                <div className="bg-card rounded-full p-2 shadow-card-sport group-hover:shadow-sport transition-shadow">
+                  <img src={team.logo} alt={team.shortName} className="h-16 w-16 rounded-full object-cover" />
                 </div>
-                <span className="text-xs font-medium text-field-foreground/70 text-center leading-tight group-hover:text-field-foreground transition-colors">{team.shortName}</span>
+                <span className="text-xs font-medium text-field-foreground/80 text-center leading-tight">{team.shortName}</span>
               </Link>
             ))}
           </div>
