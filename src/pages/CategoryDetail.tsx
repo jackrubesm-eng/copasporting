@@ -1,4 +1,5 @@
 import { useParams, Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import { categories, getMatches, getTopScorers, teams, type Category } from "@/data/teams";
 import StandingsTable from "@/components/StandingsTable";
 import MatchCard from "@/components/MatchCard";
@@ -23,22 +24,26 @@ const CategoryDetail = () => {
   const topScorers = getTopScorers(category);
 
   return (
-    <div className="container py-8">
-      <Link to="/categorias" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary mb-4">
-        <ArrowLeft size={16} /> Voltar
+    <div className="container py-10">
+      <Link to="/categorias" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary mb-6 transition-colors">
+        <ArrowLeft size={16} /> Categorias
       </Link>
-      <h1 className="font-display text-3xl font-bold text-foreground uppercase tracking-wider mb-8">{category}</h1>
+
+      <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+        <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-1">Classificação</p>
+        <h1 className="font-display text-5xl text-foreground tracking-tight mb-10">{category}</h1>
+      </motion.div>
 
       {/* Standings */}
-      <section className="mb-10">
-        <h2 className="font-display text-xl font-bold text-foreground uppercase tracking-wider mb-4">Classificação</h2>
+      <section className="mb-12">
         <StandingsTable category={category} />
       </section>
 
       {/* Matches */}
-      <section className="mb-10 grid md:grid-cols-2 gap-8">
+      <section className="mb-12 grid md:grid-cols-2 gap-10">
         <div>
-          <h2 className="font-display text-xl font-bold text-foreground uppercase tracking-wider mb-4">Jogos Realizados</h2>
+          <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-1">Resultados</p>
+          <h2 className="font-display text-2xl text-foreground tracking-tight mb-4">JOGOS REALIZADOS</h2>
           <div className="space-y-3">
             {finished.length > 0 ? finished.map(m => <MatchCard key={m.id} match={m} />) : (
               <p className="text-muted-foreground text-sm">Nenhum jogo realizado.</p>
@@ -46,7 +51,8 @@ const CategoryDetail = () => {
           </div>
         </div>
         <div>
-          <h2 className="font-display text-xl font-bold text-foreground uppercase tracking-wider mb-4">Próximos Jogos</h2>
+          <p className="text-xs font-semibold text-gold uppercase tracking-widest mb-1">Agenda</p>
+          <h2 className="font-display text-2xl text-foreground tracking-tight mb-4">PRÓXIMOS JOGOS</h2>
           <div className="space-y-3">
             {scheduled.length > 0 ? scheduled.map(m => <MatchCard key={m.id} match={m} />) : (
               <p className="text-muted-foreground text-sm">Todos os jogos foram realizados.</p>
@@ -56,20 +62,25 @@ const CategoryDetail = () => {
       </section>
 
       {/* Top Scorers */}
-      <section className="mb-10">
-        <h2 className="font-display text-xl font-bold text-foreground uppercase tracking-wider mb-4">Artilharia</h2>
-        <div className="bg-card border border-border rounded-lg overflow-hidden shadow-card-sport">
+      <section className="mb-12">
+        <p className="text-xs font-semibold text-accent uppercase tracking-widest mb-1">Goleadores</p>
+        <h2 className="font-display text-2xl text-foreground tracking-tight mb-4">ARTILHARIA</h2>
+        <div className="bg-card border border-border rounded-xl overflow-hidden shadow-card">
           {topScorers.map((scorer, i) => {
             const team = teams.find(t => t.id === scorer.teamId);
             return (
-              <div key={i} className={`flex items-center gap-3 px-4 py-3 ${i > 0 ? "border-t border-border" : ""}`}>
-                <span className="font-display font-bold text-lg text-muted-foreground w-8">{i + 1}º</span>
+              <div key={i} className={`flex items-center gap-4 px-5 py-4 ${i > 0 ? "border-t border-border/50" : ""}`}>
+                <span className={`inline-flex items-center justify-center w-7 h-7 rounded-full font-display text-base ${
+                  i === 0 ? "bg-gold text-gold-foreground" : "text-muted-foreground"
+                }`}>
+                  {i + 1}
+                </span>
                 {team && <img src={team.logo} alt={team.shortName} className="h-7 w-7 rounded-full object-cover" />}
                 <div className="flex-1">
-                  <p className="font-medium text-foreground text-sm">{scorer.name}</p>
+                  <p className="font-semibold text-foreground text-sm">{scorer.name}</p>
                   <p className="text-xs text-muted-foreground">{team?.shortName}</p>
                 </div>
-                <span className="font-display text-xl font-bold text-primary">{scorer.goals}</span>
+                <span className="font-display text-2xl text-primary">{scorer.goals}</span>
               </div>
             );
           })}
@@ -78,7 +89,8 @@ const CategoryDetail = () => {
 
       {/* Scouts */}
       <section>
-        <h2 className="font-display text-xl font-bold text-foreground uppercase tracking-wider mb-4">Scouts</h2>
+        <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-1">Estatísticas</p>
+        <h2 className="font-display text-2xl text-foreground tracking-tight mb-4">SCOUTS</h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {[
             { label: "Melhor Ataque", team: "GB Restinga", value: "12 gols" },
@@ -88,10 +100,10 @@ const CategoryDetail = () => {
             { label: "Melhor Visitante", team: "Santos POA", value: "67% aprov." },
             { label: "Mais Cartões", team: "Super Dez", value: "4 cartões" },
           ].map((s) => (
-            <div key={s.label} className="bg-card border border-border rounded-lg p-4 shadow-card-sport">
-              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">{s.label}</p>
-              <p className="font-display font-bold text-foreground">{s.team}</p>
-              <p className="text-sm text-primary font-medium">{s.value}</p>
+            <div key={s.label} className="bg-card border border-border rounded-xl p-5 shadow-card">
+              <p className="text-[11px] text-muted-foreground uppercase tracking-widest mb-2 font-medium">{s.label}</p>
+              <p className="font-semibold text-foreground">{s.team}</p>
+              <p className="text-sm text-primary font-medium mt-0.5">{s.value}</p>
             </div>
           ))}
         </div>
