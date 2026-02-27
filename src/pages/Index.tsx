@@ -34,7 +34,7 @@ const Index = () => {
                 <span className="block text-gradient-gold">FUT 7 — 2026</span>
               </h1>
               <p className="mt-4 text-field-foreground/70 text-lg max-w-md">
-                O maior torneio de Futebol 7 da região metropolitana do Rio Grande do Sul.
+                Torneio de Futebol 7 da região metropolitana do Rio Grande do Sul.
               </p>
               <div className="mt-6 flex flex-wrap gap-3 justify-center md:justify-start">
                 <Link
