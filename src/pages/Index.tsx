@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Trophy, Users, Calendar, Target } from "lucide-react";
 import logoCopa from "@/assets/logo-copa.jpeg";
-import mascote from "@/assets/mascote.jpeg";
+import mascote from "@/assets/mascote.png";
 import { teams, categories, getMatches, getTopScorers } from "@/data/teams";
 import MatchCard from "@/components/MatchCard";
 
