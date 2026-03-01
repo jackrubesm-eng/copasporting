@@ -158,6 +158,32 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* Patrocinadores */}
+      <section className="py-12 bg-card border-t border-border">
+        <div className="container">
+          <h2 className="font-display text-xl font-bold text-foreground mb-2 uppercase tracking-wider text-center">Patrocinadores</h2>
+          <p className="text-sm text-muted-foreground text-center mb-8">Parceiros que fazem a Copa Pampa acontecer</p>
+          <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12">
+            {[
+              { name: "Tech Arm", url: "https://techarm.com.br", logo: null },
+              { name: "Patrocinador 2", url: "#", logo: null },
+              { name: "Patrocinador 3", url: "#", logo: null },
+              { name: "Patrocinador 4", url: "#", logo: null },
+            ].map((sponsor) => (
+              <a
+                key={sponsor.name}
+                href={sponsor.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center bg-muted rounded-xl px-6 py-4 min-w-[140px] h-20 hover:shadow-sport hover:border-primary/30 border border-transparent transition-all"
+              >
+                <span className="font-display text-base font-bold text-muted-foreground">{sponsor.name}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
     </div>
   );
 };
