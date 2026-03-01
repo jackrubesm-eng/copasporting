@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
-import logoCopa from "@/assets/logo-copa.jpeg";
+import logoCopa from "@/assets/logo-copa.png";
 
 const navItems = [
   { label: "Home", path: "/" },
@@ -20,7 +20,7 @@ const Header = () => {
       <div className="container flex items-center justify-between h-16">
         <Link to="/" className="flex items-center gap-2">
           <img src={logoCopa} alt="Copa Pampa Fut 7 2026" className="h-12 w-12 rounded-full object-cover" />
-          <div className="hidden sm:block">
+          <div>
             <span className="font-display text-lg font-bold text-field-foreground tracking-wide">COPA PAMPA</span>
             <span className="block text-xs text-primary-foreground/70 font-body -mt-1">FUT 7 • 2026</span>
           </div>
