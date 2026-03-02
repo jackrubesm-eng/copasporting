@@ -1,15 +1,36 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Trophy, Users, Calendar, Target } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import logoCopa from "@/assets/logo-copa.png";
 import mascote from "@/assets/mascote.png";
+import logoArmTech from "@/assets/logo-armtech.png";
 import { teams, categories, getMatches, getTopScorers } from "@/data/teams";
+import { supabase } from "@/integrations/supabase/client";
 import MatchCard from "@/components/MatchCard";
 
 const Index = () => {
   const recentMatches = getMatches("Sub 11").filter(m => m.status === "finished").slice(0, 3);
   const nextMatches = getMatches("Sub 11").filter(m => m.status === "scheduled").slice(0, 3);
   const topScorers = getTopScorers("Sub 11").slice(0, 5);
+
+  const { data: sponsors } = useQuery({
+    queryKey: ["sponsors"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("sponsors")
+        .select("*")
+        .eq("active", true)
+        .order("display_order");
+      return data || [];
+    },
+  });
+
+  // Map known sponsors to local assets
+  const getLogoSrc = (sponsor: any) => {
+    if (sponsor.name === "Arm Tech") return logoArmTech;
+    return sponsor.logo_url;
+  };
 
   return (
     <div>
@@ -165,20 +186,19 @@ const Index = () => {
           <h2 className="font-display text-xl font-bold text-foreground mb-2 uppercase tracking-wider text-center">Patrocinadores</h2>
           <p className="text-sm text-muted-foreground text-center mb-8">Parceiros que fazem a Copa Pampa acontecer</p>
           <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12">
-            {[
-              { name: "Tech Arm", url: "https://techarm.com.br", logo: null },
-              { name: "Patrocinador 2", url: "#", logo: null },
-              { name: "Patrocinador 3", url: "#", logo: null },
-              { name: "Patrocinador 4", url: "#", logo: null },
-            ].map((sponsor) => (
+            {(sponsors || []).map((sponsor) => (
               <a
-                key={sponsor.name}
-                href={sponsor.url}
+                key={sponsor.id}
+                href={sponsor.website_url || "#"}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center bg-muted rounded-xl px-6 py-4 min-w-[140px] h-20 hover:shadow-sport hover:border-primary/30 border border-transparent transition-all"
+                className="flex items-center justify-center bg-muted rounded-xl px-6 py-4 min-w-[140px] h-24 hover:shadow-sport hover:border-primary/30 border border-transparent transition-all"
               >
-                <span className="font-display text-base font-bold text-muted-foreground">{sponsor.name}</span>
+                {getLogoSrc(sponsor) ? (
+                  <img src={getLogoSrc(sponsor)} alt={sponsor.name} className="h-16 max-w-[160px] object-contain" />
+                ) : (
+                  <span className="font-display text-base font-bold text-muted-foreground">{sponsor.name}</span>
+                )}
               </a>
             ))}
           </div>
