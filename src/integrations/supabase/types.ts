@@ -14,7 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      sponsors: {
+        Row: {
+          active: boolean
+          created_at: string
+          display_order: number
+          id: string
+          logo_url: string | null
+          name: string
+          website_url: string | null
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          display_order?: number
+          id?: string
+          logo_url?: string | null
+          name: string
+          website_url?: string | null
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          display_order?: number
+          id?: string
+          logo_url?: string | null
+          name?: string
+          website_url?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
