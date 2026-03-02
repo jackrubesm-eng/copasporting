@@ -14,6 +14,212 @@ export type Database = {
   }
   public: {
     Tables: {
+      athletes: {
+        Row: {
+          active: boolean
+          birth_date: string | null
+          category_id: string
+          created_at: string
+          document_number: string | null
+          id: string
+          name: string
+          photo_url: string | null
+          position: string | null
+          shirt_number: number | null
+          team_id: string
+        }
+        Insert: {
+          active?: boolean
+          birth_date?: string | null
+          category_id: string
+          created_at?: string
+          document_number?: string | null
+          id?: string
+          name: string
+          photo_url?: string | null
+          position?: string | null
+          shirt_number?: number | null
+          team_id: string
+        }
+        Update: {
+          active?: boolean
+          birth_date?: string | null
+          category_id?: string
+          created_at?: string
+          document_number?: string | null
+          id?: string
+          name?: string
+          photo_url?: string | null
+          position?: string | null
+          shirt_number?: number | null
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "athletes_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "athletes_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      categories: {
+        Row: {
+          created_at: string
+          display_order: number
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      match_events: {
+        Row: {
+          athlete_id: string
+          created_at: string
+          event_type: string
+          id: string
+          match_id: string
+          minute: number | null
+          team_id: string
+        }
+        Insert: {
+          athlete_id: string
+          created_at?: string
+          event_type: string
+          id?: string
+          match_id: string
+          minute?: number | null
+          team_id: string
+        }
+        Update: {
+          athlete_id?: string
+          created_at?: string
+          event_type?: string
+          id?: string
+          match_id?: string
+          minute?: number | null
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "match_events_athlete_id_fkey"
+            columns: ["athlete_id"]
+            isOneToOne: false
+            referencedRelation: "athletes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "match_events_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "matches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "match_events_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      matches: {
+        Row: {
+          away_penalties: number | null
+          away_score: number | null
+          away_team_id: string
+          category_id: string
+          created_at: string
+          decided_by: string | null
+          home_penalties: number | null
+          home_score: number | null
+          home_team_id: string
+          id: string
+          location: string | null
+          match_date: string | null
+          match_time: string | null
+          round: number
+          status: string
+        }
+        Insert: {
+          away_penalties?: number | null
+          away_score?: number | null
+          away_team_id: string
+          category_id: string
+          created_at?: string
+          decided_by?: string | null
+          home_penalties?: number | null
+          home_score?: number | null
+          home_team_id: string
+          id?: string
+          location?: string | null
+          match_date?: string | null
+          match_time?: string | null
+          round?: number
+          status?: string
+        }
+        Update: {
+          away_penalties?: number | null
+          away_score?: number | null
+          away_team_id?: string
+          category_id?: string
+          created_at?: string
+          decided_by?: string | null
+          home_penalties?: number | null
+          home_score?: number | null
+          home_team_id?: string
+          id?: string
+          location?: string | null
+          match_date?: string | null
+          match_time?: string | null
+          round?: number
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "matches_away_team_id_fkey"
+            columns: ["away_team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "matches_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "matches_home_team_id_fkey"
+            columns: ["home_team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sponsors: {
         Row: {
           active: boolean
@@ -41,6 +247,63 @@ export type Database = {
           logo_url?: string | null
           name?: string
           website_url?: string | null
+        }
+        Relationships: []
+      }
+      team_categories: {
+        Row: {
+          category_id: string
+          id: string
+          team_id: string
+        }
+        Insert: {
+          category_id: string
+          id?: string
+          team_id: string
+        }
+        Update: {
+          category_id?: string
+          id?: string
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_categories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_categories_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teams: {
+        Row: {
+          created_at: string
+          id: string
+          logo_url: string | null
+          name: string
+          short_name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          name: string
+          short_name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          name?: string
+          short_name?: string
         }
         Relationships: []
       }
