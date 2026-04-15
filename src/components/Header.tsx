@@ -7,7 +7,6 @@ import logoCopa from "@/assets/logo-copa-sporting.jpeg";
 const navItems = [
   { label: "Home", path: "/" },
   { label: "Categorias", path: "/categorias" },
-  { label: "Seleções", path: "/times" },
   { label: "Regulamento", path: "/regulamento" },
   { label: "Contato", path: "/contato" },
 ];
