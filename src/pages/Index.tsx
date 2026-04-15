@@ -143,7 +143,7 @@ const Index = () => {
         <h2 className="font-display text-lg md:text-2xl font-bold text-foreground mb-4 uppercase tracking-wider flex items-center gap-2">
           <Trophy className="h-5 w-5 text-primary" /> Categorias
         </h2>
-        <div className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory md:grid md:grid-cols-3 md:overflow-visible scrollbar-hide">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
           {categories.map((cat, i) => (
             <motion.div
               key={cat}
@@ -151,11 +151,11 @@ const Index = () => {
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className="snap-center"
+              className=""
             >
               <Link
                 to={`/categorias/${encodeURIComponent(cat)}`}
-                className="flex items-center justify-between bg-card border border-border rounded-xl p-4 min-w-[200px] md:min-w-0 hover:shadow-sport hover:border-primary/40 active:scale-[0.98] transition-all group"
+                className="flex items-center justify-between bg-card border border-border rounded-xl p-4 hover:shadow-sport hover:border-primary/40 active:scale-[0.98] transition-all group"
               >
                 <span className="font-display text-lg font-bold text-primary">{cat}</span>
                 <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
@@ -270,7 +270,7 @@ const Index = () => {
       <section className="bg-field py-8 md:py-12">
         <div className="container px-3">
           <h2 className="font-display text-lg font-bold text-field-foreground mb-4 uppercase tracking-wider">Seleções Participantes</h2>
-          <div className="flex gap-4 overflow-x-auto pb-2 snap-x scrollbar-hide md:grid md:grid-cols-6 md:overflow-visible">
+          <div className="grid grid-cols-3 gap-4 md:grid-cols-6">
             {teams.map((team, i) => (
               <motion.div
                 key={team.id}
