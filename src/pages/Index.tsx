@@ -5,9 +5,10 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import type { Category } from "@/data/teams";
 import logoCopa from "@/assets/logo-copa-sporting.jpeg";
-import { teams, categories, getMatches, getTopScorers } from "@/data/teams";
+import { teams, categories, getMatches, getTopScorers, getStandings, getTeamById } from "@/data/teams";
 import { supabase } from "@/integrations/supabase/client";
 import MatchCard from "@/components/MatchCard";
+import StandingsTable from "@/components/StandingsTable";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -26,6 +27,7 @@ const Index = () => {
   const qc = useQueryClient();
   const [matchCat, setMatchCat] = useState<Category>("Pré-mirim");
   const [scorerCat, setScorerCat] = useState<Category>("Pré-mirim");
+  const [standingsCat, setStandingsCat] = useState<Category>("Pré-mirim");
 
   const recentMatches = getMatches(matchCat).filter(m => m.status === "finished").slice(0, 3);
   const nextMatches = getMatches(matchCat).filter(m => m.status === "scheduled").slice(0, 3);
@@ -210,6 +212,29 @@ const Index = () => {
             </div>
           </div>
         </div>
+      </section>
+
+      {/* Classificação */}
+      <section className="container py-8 md:py-12 px-3">
+        <h2 className="font-display text-lg font-bold text-foreground mb-3 uppercase tracking-wider flex items-center gap-2">
+          <Trophy className="h-4 w-4 text-primary" /> Classificação
+        </h2>
+        <div className="flex gap-2 mb-4">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setStandingsCat(cat)}
+              className={`px-3 py-1.5 rounded-full text-xs font-display uppercase tracking-wider whitespace-nowrap transition-all active:scale-95 ${
+                standingsCat === cat
+                  ? "bg-primary text-primary-foreground shadow-sport"
+                  : "bg-card text-muted-foreground border border-border hover:border-primary/40"
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+        <StandingsTable category={standingsCat} key={standingsCat} />
       </section>
 
       {/* Top Scorers */}
