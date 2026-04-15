@@ -208,49 +208,30 @@ const AdminMatchReport = () => {
             </Select>
           </div>
 
-          {/* Lista de atletas do time selecionado */}
+          {/* Atleta — select + botão novo */}
           {eventTeamId && (
             <div>
-              <div className="flex items-center justify-between mb-2">
-                <Label>Atleta</Label>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-7 text-xs gap-1"
-                  onClick={() => setShowNewAthlete(true)}
-                >
-                  <UserPlus className="h-3 w-3" /> Novo Atleta
+              <Label>Atleta</Label>
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <Select value={selectedAthleteId || ""} onValueChange={setSelectedAthleteId}>
+                    <SelectTrigger><SelectValue placeholder="Selecione o atleta" /></SelectTrigger>
+                    <SelectContent>
+                      {teamAthletes.map(a => (
+                        <SelectItem key={a.id} value={a.id}>
+                          {a.shirt_number ? `#${a.shirt_number} ` : ""}{a.name}
+                        </SelectItem>
+                      ))}
+                      {teamAthletes.length === 0 && (
+                        <SelectItem value="__empty" disabled>Nenhum atleta cadastrado</SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button variant="outline" size="icon" className="shrink-0" onClick={() => setShowNewAthlete(true)} title="Cadastrar novo atleta">
+                  <UserPlus className="h-4 w-4" />
                 </Button>
               </div>
-
-              {teamAthletes.length === 0 ? (
-                <div className="text-center py-4 border border-dashed border-border rounded-md">
-                  <p className="text-sm text-muted-foreground mb-2">Nenhum atleta cadastrado neste time</p>
-                  <Button variant="outline" size="sm" onClick={() => setShowNewAthlete(true)}>
-                    <Plus className="h-4 w-4 mr-1" /> Cadastrar Primeiro Atleta
-                  </Button>
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
-                  {teamAthletes.map(a => (
-                    <button
-                      key={a.id}
-                      onClick={() => setSelectedAthleteId(a.id === selectedAthleteId ? null : a.id)}
-                      className={cn(
-                        "flex items-center gap-2 p-2 rounded-md border text-left text-sm transition-colors",
-                        a.id === selectedAthleteId
-                          ? "border-primary bg-primary/10 text-primary"
-                          : "border-border hover:border-primary/40"
-                      )}
-                    >
-                      {a.id === selectedAthleteId && <Check className="h-3 w-3 shrink-0" />}
-                      <span className="truncate">
-                        {a.shirt_number ? `#${a.shirt_number} ` : ""}{a.name}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              )}
             </div>
           )}
 
