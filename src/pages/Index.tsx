@@ -9,6 +9,7 @@ import { teams, categories, getMatches, getTopScorers, getTopAssists, getLeastCo
 import { supabase } from "@/integrations/supabase/client";
 import MatchCard from "@/components/MatchCard";
 import StandingsTable from "@/components/StandingsTable";
+import SponsorsCarousel from "@/components/SponsorsCarousel";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
