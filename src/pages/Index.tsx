@@ -1,13 +1,28 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Trophy, Users, Calendar, Target } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { Trophy, Users, Calendar, Target, ChevronRight, Flame, Zap } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import logoCopa from "@/assets/logo-copa-sporting.jpeg";
 import { teams, categories, getMatches, getTopScorers } from "@/data/teams";
 import { supabase } from "@/integrations/supabase/client";
 import MatchCard from "@/components/MatchCard";
 
+const fadeUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.1, duration: 0.5, ease: [0.25, 0.1, 0.25, 1] as const },
+  }),
+};
+
+const stagger = {
+  visible: { transition: { staggerChildren: 0.08 } },
+};
+
 const Index = () => {
+  const qc = useQueryClient();
   const recentMatches = getMatches("Pré-mirim").filter(m => m.status === "finished").slice(0, 3);
   const nextMatches = getMatches("Pré-mirim").filter(m => m.status === "scheduled").slice(0, 3);
   const topScorers = getTopScorers("Pré-mirim").slice(0, 5);
@@ -24,169 +39,252 @@ const Index = () => {
     },
   });
 
+  // Realtime: auto-refresh when matches or events change
+  useEffect(() => {
+    const channel = supabase
+      .channel("home-realtime")
+      .on("postgres_changes", { event: "*", schema: "public", table: "matches" }, () => {
+        qc.invalidateQueries({ queryKey: ["matches"] });
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "match_events" }, () => {
+        qc.invalidateQueries({ queryKey: ["match_events"] });
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [qc]);
+
   return (
-    <div>
-      {/* Hero */}
+    <div className="overflow-x-hidden">
+      {/* Hero — compact mobile */}
       <section className="bg-hero-gradient relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-10 left-10 w-40 h-40 rounded-full bg-primary blur-3xl" />
-          <div className="absolute bottom-10 right-10 w-60 h-60 rounded-full bg-secondary blur-3xl" />
+          <div className="absolute top-6 left-4 w-32 h-32 rounded-full bg-primary blur-3xl animate-pulse" />
+          <div className="absolute bottom-6 right-4 w-48 h-48 rounded-full bg-secondary blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
         </div>
 
-        <div className="container relative py-12 md:py-20">
-          <div className="flex flex-col items-center text-center gap-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
+        <div className="container relative py-8 md:py-16">
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={stagger}
+            className="flex flex-col items-center text-center gap-4"
+          >
+            <motion.img
+              variants={fadeUp}
+              custom={0}
+              src={logoCopa}
+              alt="Copa do Mundo Sporting"
+              className="h-28 w-28 md:h-40 md:w-40 mx-auto rounded-2xl object-cover shadow-sport"
+            />
+            <motion.h1
+              variants={fadeUp}
+              custom={1}
+              className="text-3xl md:text-6xl font-display font-bold text-field-foreground tracking-tight leading-tight"
             >
-              <img src={logoCopa} alt="Copa do Mundo Sporting" className="h-40 w-40 mx-auto rounded-2xl object-cover shadow-sport mb-6" />
-              <h1 className="text-4xl md:text-6xl font-display font-bold text-field-foreground tracking-tight leading-tight">
-                COPA DO MUNDO
-                <span className="block text-gradient-gold">SPORTING</span>
-              </h1>
-              <p className="mt-4 text-field-foreground/70 text-lg max-w-lg mx-auto">
-                Torneio interno anual da Esporte. 6 seleções disputando em 3 categorias.
-              </p>
-              <div className="mt-6 flex flex-wrap gap-3 justify-center">
-                <Link
-                  to="/categorias"
-                  className="px-6 py-3 bg-primary text-primary-foreground font-display uppercase tracking-wider text-sm rounded-lg hover:bg-primary/90 transition-colors shadow-sport"
-                >
-                  Ver Categorias
-                </Link>
-                <Link
-                  to="/times"
-                  className="px-6 py-3 bg-secondary text-secondary-foreground font-display uppercase tracking-wider text-sm rounded-lg hover:bg-secondary/90 transition-colors"
-                >
-                  Seleções
-                </Link>
-              </div>
+              COPA DO MUNDO
+              <span className="block text-gradient-gold">SPORTING</span>
+            </motion.h1>
+            <motion.p variants={fadeUp} custom={2} className="text-field-foreground/70 text-sm md:text-lg max-w-lg mx-auto">
+              Torneio interno anual. 6 seleções disputando em 3 categorias.
+            </motion.p>
+            <motion.div variants={fadeUp} custom={3} className="flex gap-3">
+              <Link
+                to="/categorias"
+                className="px-5 py-2.5 bg-primary text-primary-foreground font-display uppercase tracking-wider text-xs rounded-lg hover:bg-primary/90 active:scale-95 transition-all shadow-sport"
+              >
+                Ver Categorias
+              </Link>
+              <Link
+                to="/times"
+                className="px-5 py-2.5 bg-secondary text-secondary-foreground font-display uppercase tracking-wider text-xs rounded-lg hover:bg-secondary/90 active:scale-95 transition-all"
+              >
+                Seleções
+              </Link>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Stats — grid 2x2 mobile */}
+      <section className="container -mt-5 relative z-10 px-3">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          variants={stagger}
+          className="grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-3"
+        >
+          {[
+            { icon: Trophy, label: "Categorias", value: "3", color: "text-primary" },
+            { icon: Users, label: "Seleções", value: "6", color: "text-secondary" },
+            { icon: Calendar, label: "Rodadas", value: "5 + Final", color: "text-accent" },
+            { icon: Target, label: "Jogos/Rodada", value: "9", color: "text-primary" },
+          ].map((stat, i) => (
+            <motion.div
+              key={stat.label}
+              variants={fadeUp}
+              custom={i}
+              className="bg-card rounded-xl border border-border shadow-card-sport p-3 text-center"
+            >
+              <stat.icon className={`h-4 w-4 ${stat.color} mx-auto mb-1`} />
+              <p className="font-display text-xl md:text-2xl font-bold text-foreground">{stat.value}</p>
+              <p className="text-[10px] md:text-xs text-muted-foreground uppercase tracking-wider">{stat.label}</p>
+            </motion.div>
+          ))}
+        </motion.div>
+      </section>
+
+      {/* Categories — horizontal scroll mobile */}
+      <section className="container py-8 md:py-12 px-3">
+        <h2 className="font-display text-lg md:text-2xl font-bold text-foreground mb-4 uppercase tracking-wider flex items-center gap-2">
+          <Trophy className="h-5 w-5 text-primary" /> Categorias
+        </h2>
+        <div className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory md:grid md:grid-cols-3 md:overflow-visible scrollbar-hide">
+          {categories.map((cat, i) => (
+            <motion.div
+              key={cat}
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1 }}
+              className="snap-center"
+            >
+              <Link
+                to={`/categorias/${encodeURIComponent(cat)}`}
+                className="flex items-center justify-between bg-card border border-border rounded-xl p-4 min-w-[200px] md:min-w-0 hover:shadow-sport hover:border-primary/40 active:scale-[0.98] transition-all group"
+              >
+                <span className="font-display text-lg font-bold text-primary">{cat}</span>
+                <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+              </Link>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* Matches — stacked on mobile */}
+      <section className="bg-muted py-8 md:py-12">
+        <div className="container px-3 space-y-8 md:space-y-0 md:grid md:grid-cols-2 md:gap-8">
+          <div>
+            <h2 className="font-display text-lg font-bold text-foreground mb-3 uppercase tracking-wider flex items-center gap-2">
+              <Zap className="h-4 w-4 text-accent" /> Últimos Resultados
+            </h2>
+            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="space-y-2">
+              {recentMatches.map((m, i) => (
+                <motion.div key={m.id} variants={fadeUp} custom={i}>
+                  <MatchCard match={m} />
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
+          <div>
+            <h2 className="font-display text-lg font-bold text-foreground mb-3 uppercase tracking-wider flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-secondary" /> Próximos Jogos
+            </h2>
+            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="space-y-2">
+              {nextMatches.map((m, i) => (
+                <motion.div key={m.id} variants={fadeUp} custom={i}>
+                  <MatchCard match={m} />
+                </motion.div>
+              ))}
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Stats */}
-      <section className="container -mt-6 relative z-10">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {[
-            { icon: Trophy, label: "Categorias", value: "3" },
-            { icon: Users, label: "Seleções", value: "6" },
-            { icon: Calendar, label: "Rodadas", value: "5 + Final" },
-            { icon: Target, label: "Jogos/Rodada", value: "9" },
-          ].map((stat) => (
-            <div key={stat.label} className="bg-card rounded-lg border border-border shadow-card-sport p-4 text-center">
-              <stat.icon className="h-5 w-5 text-primary mx-auto mb-1" />
-              <p className="font-display text-2xl font-bold text-foreground">{stat.value}</p>
-              <p className="text-xs text-muted-foreground uppercase tracking-wider">{stat.label}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Categories */}
-      <section className="container py-12">
-        <h2 className="font-display text-2xl font-bold text-foreground mb-6 uppercase tracking-wider">Categorias</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {categories.map((cat) => (
-            <Link
-              key={cat}
-              to={`/categorias/${encodeURIComponent(cat)}`}
-              className="bg-card border border-border rounded-lg p-5 text-center hover:shadow-sport hover:border-primary/40 transition-all group"
-            >
-              <span className="font-display text-xl font-bold text-primary group-hover:text-gradient-gold transition-colors">{cat}</span>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* Recent Matches + Next Matches */}
-      <section className="bg-muted py-12">
-        <div className="container grid md:grid-cols-2 gap-8">
-          <div>
-            <h2 className="font-display text-xl font-bold text-foreground mb-4 uppercase tracking-wider">Últimos Resultados</h2>
-            <div className="space-y-3">
-              {recentMatches.map(m => <MatchCard key={m.id} match={m} />)}
-            </div>
-          </div>
-          <div>
-            <h2 className="font-display text-xl font-bold text-foreground mb-4 uppercase tracking-wider">Próximos Jogos</h2>
-            <div className="space-y-3">
-              {nextMatches.map(m => <MatchCard key={m.id} match={m} />)}
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Top Scorers */}
-      <section className="container py-12">
-        <h2 className="font-display text-xl font-bold text-foreground mb-4 uppercase tracking-wider">Artilheiros</h2>
-        <div className="bg-card border border-border rounded-lg overflow-hidden shadow-card-sport">
+      <section className="container py-8 md:py-12 px-3">
+        <h2 className="font-display text-lg font-bold text-foreground mb-3 uppercase tracking-wider flex items-center gap-2">
+          <Flame className="h-4 w-4 text-accent" /> Artilheiros
+        </h2>
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={stagger}
+          className="bg-card border border-border rounded-xl overflow-hidden shadow-card-sport"
+        >
           {topScorers.map((scorer, i) => {
             const team = teams.find(t => t.id === scorer.teamId);
             return (
-              <div key={i} className={`flex items-center gap-3 px-4 py-3 ${i > 0 ? "border-t border-border" : ""}`}>
-                <span className="font-display font-bold text-lg text-muted-foreground w-8">{i + 1}º</span>
-                {team && <img src={team.logo} alt={team.shortName} className="h-7 w-7 rounded-full object-cover" loading="lazy" />}
-                <div className="flex-1">
-                  <p className="font-medium text-foreground text-sm">{scorer.name}</p>
+              <motion.div
+                key={i}
+                variants={fadeUp}
+                custom={i}
+                className={`flex items-center gap-3 px-3 py-3 ${i > 0 ? "border-t border-border" : ""} active:bg-muted/50 transition-colors`}
+              >
+                <span className={`font-display font-bold text-lg w-7 text-center ${i === 0 ? "text-secondary" : i < 3 ? "text-primary" : "text-muted-foreground"}`}>
+                  {i + 1}º
+                </span>
+                {team && <img src={team.logo} alt={team.shortName} className="h-8 w-8 rounded-full object-cover ring-2 ring-border" loading="lazy" />}
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-foreground text-sm truncate">{scorer.name}</p>
                   <p className="text-xs text-muted-foreground">{team?.shortName} • Pré-mirim</p>
                 </div>
-                <span className="font-display text-xl font-bold text-primary">{scorer.goals}</span>
-                <span className="text-xs text-muted-foreground">gols</span>
-              </div>
+                <div className="flex items-baseline gap-1">
+                  <span className="font-display text-xl font-bold text-primary">{scorer.goals}</span>
+                  <span className="text-[10px] text-muted-foreground">gols</span>
+                </div>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
       </section>
 
       {/* Seleções por Categoria */}
-      <section className="bg-field py-12">
-        <div className="container">
-          <h2 className="font-display text-xl font-bold text-field-foreground mb-6 uppercase tracking-wider">Seleções Participantes</h2>
-          {categories.map((cat) => (
-            <div key={cat} className="mb-8 last:mb-0">
-              <h3 className="font-display text-sm font-bold text-primary uppercase tracking-wider mb-3">{cat}</h3>
-              <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
+      <section className="bg-field py-8 md:py-12">
+        <div className="container px-3">
+          <h2 className="font-display text-lg font-bold text-field-foreground mb-4 uppercase tracking-wider">Seleções Participantes</h2>
+          {categories.map((cat, catIdx) => (
+            <motion.div
+              key={cat}
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: catIdx * 0.15 }}
+              className="mb-6 last:mb-0"
+            >
+              <h3 className="font-display text-xs font-bold text-primary uppercase tracking-wider mb-2">{cat}</h3>
+              <div className="flex gap-4 overflow-x-auto pb-2 snap-x scrollbar-hide md:grid md:grid-cols-6 md:overflow-visible">
                 {teams.map((team) => (
                   <Link
                     key={`${team.id}-${cat}`}
                     to={`/times/${team.id}?categoria=${encodeURIComponent(cat)}`}
-                    className="flex flex-col items-center gap-2 group"
+                    className="flex flex-col items-center gap-1.5 snap-center min-w-[64px] group"
                   >
-                    <div className="bg-card rounded-full p-2 shadow-card-sport group-hover:shadow-sport transition-shadow">
-                      <img src={team.logo} alt={`${team.shortName} - ${cat}`} className="h-14 w-14 rounded-full object-cover" loading="lazy" />
+                    <div className="bg-card rounded-full p-1.5 shadow-card-sport group-hover:shadow-sport group-active:scale-95 transition-all">
+                      <img src={team.logo} alt={`${team.shortName} - ${cat}`} className="h-12 w-12 rounded-full object-cover" loading="lazy" />
                     </div>
-                    <span className="text-xs font-medium text-field-foreground/80 text-center leading-tight">{team.shortName}</span>
+                    <span className="text-[10px] font-medium text-field-foreground/80 text-center leading-tight">{team.shortName}</span>
                   </Link>
                 ))}
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </section>
 
       {/* Patrocinadores */}
-      <section className="py-12 bg-card border-t border-border">
-        <div className="container">
-          <h2 className="font-display text-xl font-bold text-foreground mb-2 uppercase tracking-wider text-center">Patrocinadores</h2>
-          <p className="text-sm text-muted-foreground text-center mb-8">Parceiros que fazem a Copa do Mundo Sporting acontecer</p>
-          <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12">
+      <section className="py-8 md:py-12 bg-card border-t border-border">
+        <div className="container px-3">
+          <h2 className="font-display text-lg font-bold text-foreground mb-1 uppercase tracking-wider text-center">Patrocinadores</h2>
+          <p className="text-xs text-muted-foreground text-center mb-6">Parceiros que fazem a Copa do Mundo Sporting acontecer</p>
+          <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8">
             {(sponsors || []).map((sponsor) => (
-              <a
+              <motion.a
                 key={sponsor.id}
                 href={sponsor.website_url || "#"}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center bg-muted rounded-xl px-6 py-4 min-w-[140px] h-24 hover:shadow-sport hover:border-primary/30 border border-transparent transition-all"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="flex items-center justify-center bg-muted rounded-xl px-4 py-3 min-w-[120px] h-20 hover:shadow-sport border border-transparent hover:border-primary/30 transition-all"
               >
                 {sponsor.logo_url ? (
-                  <img src={sponsor.logo_url} alt={sponsor.name} className="h-16 max-w-[160px] object-contain" loading="lazy" />
+                  <img src={sponsor.logo_url} alt={sponsor.name} className="h-12 max-w-[120px] object-contain" loading="lazy" />
                 ) : (
-                  <span className="font-display text-base font-bold text-muted-foreground">{sponsor.name}</span>
+                  <span className="font-display text-sm font-bold text-muted-foreground">{sponsor.name}</span>
                 )}
-              </a>
+              </motion.a>
             ))}
           </div>
         </div>
