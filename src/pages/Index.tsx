@@ -24,9 +24,12 @@ const stagger = {
 
 const Index = () => {
   const qc = useQueryClient();
-  const recentMatches = getMatches("Pré-mirim").filter(m => m.status === "finished").slice(0, 3);
-  const nextMatches = getMatches("Pré-mirim").filter(m => m.status === "scheduled").slice(0, 3);
-  const topScorers = getTopScorers("Pré-mirim").slice(0, 5);
+  const [matchCat, setMatchCat] = useState<Category>("Pré-mirim");
+  const [scorerCat, setScorerCat] = useState<Category>("Pré-mirim");
+
+  const recentMatches = getMatches(matchCat).filter(m => m.status === "finished").slice(0, 3);
+  const nextMatches = getMatches(matchCat).filter(m => m.status === "scheduled").slice(0, 3);
+  const topScorers = getTopScorers(scorerCat).slice(0, 5);
 
   const { data: sponsors } = useQuery({
     queryKey: ["sponsors"],
