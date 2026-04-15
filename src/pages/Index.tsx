@@ -217,6 +217,21 @@ const Index = () => {
         <h2 className="font-display text-lg font-bold text-foreground mb-3 uppercase tracking-wider flex items-center gap-2">
           <Flame className="h-4 w-4 text-accent" /> Artilheiros
         </h2>
+        <div className="flex gap-2 mb-4 overflow-x-auto scrollbar-hide">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setScorerCat(cat)}
+              className={`px-3 py-1.5 rounded-full text-xs font-display uppercase tracking-wider whitespace-nowrap transition-all active:scale-95 ${
+                scorerCat === cat
+                  ? "bg-primary text-primary-foreground shadow-sport"
+                  : "bg-card text-muted-foreground border border-border hover:border-primary/40"
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
         <motion.div
           initial="hidden"
           whileInView="visible"
