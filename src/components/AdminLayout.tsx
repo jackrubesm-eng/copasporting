@@ -3,7 +3,7 @@ import { useNavigate, Outlet, Link, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Users, Shield, Trophy, Calendar, Handshake, LogOut, Home, Sun, Moon, Menu, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import logoCopa from "@/assets/logo-copa-sporting.jpeg";
+import logoCopa from "@/assets/logo-copa-sporting.png";
 import { cn } from "@/lib/utils";
 
 const menuItems = [

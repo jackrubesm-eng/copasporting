@@ -4,7 +4,7 @@ import { Trophy, Users, Calendar, Target, ChevronRight, Flame, Zap, Shield, Hand
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState, useCallback } from "react";
 import type { Category } from "@/data/teams";
-import logoCopa from "@/assets/logo-copa-sporting.jpeg";
+import logoCopa from "@/assets/logo-copa-sporting.png";
 import { teams, categories, getMatches, getTopScorers, getTopAssists, getLeastConceded, getStandings, getTeamById } from "@/data/teams";
 import { supabase } from "@/integrations/supabase/client";
 import MatchCard from "@/components/MatchCard";

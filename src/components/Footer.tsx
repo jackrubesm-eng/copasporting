@@ -1,4 +1,4 @@
-import logoCopa from "@/assets/logo-copa-sporting.jpeg";
+import logoCopa from "@/assets/logo-copa-sporting.png";
 import logoSporting from "@/assets/logo-sporting.png";
 
 const Footer = () => (
