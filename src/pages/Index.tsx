@@ -73,8 +73,8 @@ const Index = () => {
           {[
             { icon: Trophy, label: "Categorias", value: "3" },
             { icon: Users, label: "Seleções", value: "6" },
-            { icon: Calendar, label: "Rodadas", value: "5" },
-            { icon: Target, label: "Jogos", value: "45" },
+            { icon: Calendar, label: "Rodadas", value: "5 + Final" },
+            { icon: Target, label: "Jogos/Rodada", value: "9" },
           ].map((stat) => (
             <div key={stat.label} className="bg-card rounded-lg border border-border shadow-card-sport p-4 text-center">
               <stat.icon className="h-5 w-5 text-primary mx-auto mb-1" />
