@@ -62,12 +62,17 @@ const Index = () => {
   }, [qc]);
 
   return (
-    <div className="overflow-x-hidden">
+    <div className="overflow-x-hidden bg-background home-spotlight">
+      <div className="pointer-events-none absolute inset-0 home-grid-overlay opacity-30" />
+
       {/* Hero — compact mobile */}
-      <section className="bg-hero-gradient relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-6 left-4 w-32 h-32 rounded-full bg-primary blur-3xl animate-pulse" />
-          <div className="absolute bottom-6 right-4 w-48 h-48 rounded-full bg-secondary blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
+      <section className="bg-hero-gradient relative overflow-hidden section-glow">
+        <div className="absolute inset-0 opacity-20 home-grid-overlay" />
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute top-6 left-4 h-32 w-32 rounded-full bg-primary blur-3xl animate-pulse" />
+          <div className="absolute bottom-6 right-4 h-48 w-48 rounded-full bg-secondary blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
+          <div className="absolute top-1/3 right-[12%] h-24 w-24 rounded-full border border-primary/30" />
+          <div className="absolute bottom-10 left-[10%] h-16 w-16 rounded-full border border-secondary/30" />
         </div>
 
         <div className="container relative py-8 md:py-16">
@@ -77,25 +82,32 @@ const Index = () => {
             variants={stagger}
             className="flex flex-col items-center text-center gap-4"
           >
-            <motion.img
+            <motion.div
               variants={fadeUp}
               custom={0}
+              className="glass-panel rounded-full px-3 py-1 text-[10px] md:text-xs font-display uppercase tracking-[0.3em] text-field-foreground/80"
+            >
+              Torneio interno 2026
+            </motion.div>
+            <motion.img
+              variants={fadeUp}
+              custom={1}
               src={logoCopa}
               alt="Copa do Mundo Sporting"
-              className="h-28 w-28 md:h-40 md:w-40 mx-auto object-contain"
+              className="h-28 w-28 md:h-40 md:w-40 mx-auto object-contain drop-shadow-[0_16px_30px_hsl(var(--primary)/0.35)]"
             />
             <motion.h1
               variants={fadeUp}
-              custom={1}
+              custom={2}
               className="text-3xl md:text-6xl font-display font-bold text-field-foreground tracking-tight leading-tight"
             >
               COPA DO MUNDO
               <span className="block text-gradient-gold">SPORTING</span>
             </motion.h1>
-            <motion.p variants={fadeUp} custom={2} className="text-field-foreground/70 text-sm md:text-lg max-w-lg mx-auto">
+            <motion.p variants={fadeUp} custom={3} className="text-field-foreground/70 text-sm md:text-lg max-w-lg mx-auto">
               Torneio interno anual. 6 seleções disputando em 3 categorias.
             </motion.p>
-            <motion.div variants={fadeUp} custom={3} className="flex gap-3">
+            <motion.div variants={fadeUp} custom={4} className="flex gap-3 flex-wrap justify-center">
               <Link
                 to="/categorias"
                 className="px-5 py-2.5 bg-primary text-primary-foreground font-display uppercase tracking-wider text-xs rounded-lg hover:bg-primary/90 active:scale-95 transition-all shadow-sport"
@@ -104,7 +116,7 @@ const Index = () => {
               </Link>
               <Link
                 to="/times"
-                className="px-5 py-2.5 bg-secondary text-secondary-foreground font-display uppercase tracking-wider text-xs rounded-lg hover:bg-secondary/90 active:scale-95 transition-all"
+                className="px-5 py-2.5 bg-secondary text-secondary-foreground font-display uppercase tracking-wider text-xs rounded-lg hover:bg-secondary/90 active:scale-95 transition-all shadow-sport"
               >
                 Seleções
               </Link>
@@ -132,7 +144,8 @@ const Index = () => {
               key={stat.label}
               variants={fadeUp}
               custom={i}
-              className="bg-card rounded-xl border border-border shadow-card-sport p-3 text-center"
+              whileHover={{ y: -4 }}
+              className="glass-panel rounded-xl shadow-card-sport p-3 text-center"
             >
               <stat.icon className={`h-4 w-4 ${stat.color} mx-auto mb-1`} />
               <p className="font-display text-xl md:text-2xl font-bold text-foreground">{stat.value}</p>
@@ -143,7 +156,7 @@ const Index = () => {
       </section>
 
       {/* Categories — horizontal scroll mobile */}
-      <section className="container py-8 md:py-12 px-3">
+      <section className="container py-8 md:py-12 px-3 section-glow">
         <h2 className="font-display text-lg md:text-2xl font-bold text-foreground mb-4 uppercase tracking-wider flex items-center gap-2">
           <Trophy className="h-5 w-5 text-primary" /> Categorias
         </h2>
@@ -159,7 +172,7 @@ const Index = () => {
             >
               <Link
                 to={`/categorias/${encodeURIComponent(cat)}`}
-                className="flex items-center justify-between bg-card border border-border rounded-xl p-4 hover:shadow-sport hover:border-primary/40 active:scale-[0.98] transition-all group"
+                className="glass-panel flex items-center justify-between rounded-xl p-4 hover:shadow-sport hover:-translate-y-1 hover:border-primary/40 active:scale-[0.98] transition-all group"
               >
                 <span className="font-display text-lg font-bold text-primary">{cat}</span>
                 <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
@@ -170,8 +183,9 @@ const Index = () => {
       </section>
 
       {/* Matches — stacked on mobile */}
-      <section className="bg-muted py-8 md:py-12">
-        <div className="container px-3">
+      <section className="relative overflow-hidden bg-muted py-8 md:py-12 section-glow">
+        <div className="pointer-events-none absolute inset-0 opacity-40 home-grid-overlay" />
+        <div className="container relative px-3">
           <div className="flex gap-2 mb-4 overflow-x-auto scrollbar-hide">
             {categories.map((cat) => (
               <button
@@ -180,7 +194,7 @@ const Index = () => {
                 className={`px-3 py-1.5 rounded-full text-xs font-display uppercase tracking-wider whitespace-nowrap transition-all active:scale-95 ${
                   matchCat === cat
                     ? "bg-primary text-primary-foreground shadow-sport"
-                    : "bg-card text-muted-foreground border border-border hover:border-primary/40"
+                    : "glass-panel text-muted-foreground hover:border-primary/40"
                 }`}
               >
                 {cat}
@@ -188,7 +202,7 @@ const Index = () => {
             ))}
           </div>
           <div className="space-y-8 md:space-y-0 md:grid md:grid-cols-2 md:gap-8 md:items-start">
-            <div>
+            <div className="glass-panel rounded-2xl p-4 md:p-5 shadow-card-sport">
               <h2 className="font-display text-lg font-bold text-foreground mb-3 uppercase tracking-wider flex items-center gap-2">
                 <Zap className="h-4 w-4 text-accent" /> Últimos Resultados
               </h2>
@@ -200,7 +214,7 @@ const Index = () => {
                 )) : <p className="text-sm text-muted-foreground py-4 text-center">Nenhum resultado ainda</p>}
               </motion.div>
             </div>
-            <div>
+            <div className="glass-panel rounded-2xl p-4 md:p-5 shadow-card-sport">
               <h2 className="font-display text-lg font-bold text-foreground mb-3 uppercase tracking-wider flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-secondary" /> Próximos Jogos
               </h2>

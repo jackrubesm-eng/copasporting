@@ -117,6 +117,42 @@
     background: linear-gradient(180deg, hsl(0, 0%, 2%) 0%, hsl(0, 0%, 8%) 50%, hsl(145, 70%, 12%) 100%);
   }
 
+  .home-grid-overlay {
+    background-image:
+      linear-gradient(to right, hsl(var(--border) / 0.12) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--border) / 0.12) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+
+  .home-spotlight {
+    background:
+      radial-gradient(circle at top, hsl(var(--primary) / 0.2), transparent 32%),
+      radial-gradient(circle at 80% 20%, hsl(var(--secondary) / 0.16), transparent 22%),
+      radial-gradient(circle at 20% 80%, hsl(var(--accent) / 0.1), transparent 26%);
+  }
+
+  .glass-panel {
+    background: linear-gradient(180deg, hsl(var(--card) / 0.9), hsl(var(--card) / 0.72));
+    backdrop-filter: blur(14px);
+    border: 1px solid hsl(var(--border) / 0.8);
+  }
+
+  .section-glow {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .section-glow::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(circle at top left, hsl(var(--primary) / 0.08), transparent 28%),
+      radial-gradient(circle at bottom right, hsl(var(--secondary) / 0.08), transparent 24%);
+  }
+
   .shadow-sport {
     box-shadow: 0 4px 20px -4px hsl(145 70% 32% / 0.3);
   }
