@@ -24,10 +24,6 @@ const Regulamento = () => (
           title: "5. Critérios de Desempate",
           content: "1º Pontos; 2º Número de vitórias; 3º Saldo de gols; 4º Gols pró."
         },
-        {
-          title: "6. Elegibilidade para Finais",
-          content: "O atleta deve cumprir um número mínimo de jogos na fase de grupos para ser elegível na fase final."
-        },
       ].map((section) => (
         <div key={section.title} className="bg-card border border-border rounded-lg p-5 shadow-card-sport">
           <h2 className="font-display text-lg font-bold text-foreground mb-2">{section.title}</h2>
