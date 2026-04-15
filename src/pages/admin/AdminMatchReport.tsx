@@ -251,13 +251,13 @@ const AdminMatchReport = () => {
                 </div>
               )}
               {athleteSearch.trim() && !selectedAthleteId && !exactMatch && eventTeamId && (
-                <p className="text-xs text-amber-500 mt-1 flex items-center gap-1">
+                <p className="text-xs text-warning mt-1 flex items-center gap-1">
                   <UserPlus className="h-3 w-3" />
                   Atleta será cadastrado automaticamente
                 </p>
               )}
               {selectedAthleteId && (
-                <p className="text-xs text-emerald-500 mt-1">✓ Atleta já cadastrado</p>
+                <p className="text-xs text-primary mt-1">✓ Atleta já cadastrado</p>
               )}
             </div>
 
