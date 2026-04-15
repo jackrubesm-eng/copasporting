@@ -50,7 +50,7 @@ const AdminLayout = () => {
         {/* Top header */}
         <header className="sticky top-0 z-50 h-14 flex items-center justify-between border-b border-border bg-card px-3">
           <div className="flex items-center gap-2">
-            <img src={logoCopa} alt="Admin" className="h-8 w-8 rounded-full object-cover" />
+            <img src={logoCopa} alt="Admin" className="h-8 w-8 object-contain" />
             <span className="font-display text-sm font-bold">ADMIN</span>
           </div>
           <div className="flex items-center gap-1">

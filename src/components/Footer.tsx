@@ -6,7 +6,7 @@ const Footer = () => (
     <div className="container py-10 space-y-6">
       <div className="flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="flex items-center gap-3">
-          <img src={logoCopa} alt="Copa do Mundo Sporting" className="h-14 w-14 rounded-full object-cover" />
+          <img src={logoCopa} alt="Copa do Mundo Sporting" className="h-14 w-14 object-contain" />
           <div>
             <p className="font-display text-xl font-bold tracking-wide">COPA DO MUNDO SPORTING</p>
             <p className="text-sm text-field-foreground/60">Torneio Interno Esporte</p>
