@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Outlet, Link, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Users, Shield, Trophy, Calendar, Handshake, LogOut, Home, Sun, Moon, Menu } from "lucide-react";
+import { Users, Shield, Trophy, Calendar, Handshake, LogOut, Home, Sun, Moon, Menu, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import logoCopa from "@/assets/logo-copa-sporting.jpeg";
 import { cn } from "@/lib/utils";
@@ -12,7 +12,8 @@ const menuItems = [
   { title: "Seleções", url: "/admin/times", icon: Shield },
   { title: "Atletas", url: "/admin/atletas", icon: Users },
   { title: "Partidas", url: "/admin/partidas", icon: Calendar },
-  { title: "Patrocinadores", url: "/admin/patrocinadores", icon: Handshake },
+  { title: "Súmulas", url: "/admin/sumulas", icon: FileText },
+  { title: "Patrocínio", url: "/admin/patrocinadores", icon: Handshake },
 ];
 
 const AdminLayout = () => {
