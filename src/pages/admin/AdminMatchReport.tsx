@@ -245,35 +245,31 @@ const AdminMatchReport = () => {
       <Card>
         <CardHeader><CardTitle className="text-lg">Eventos da Partida</CardTitle></CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Min</TableHead>
-                <TableHead>Tipo</TableHead>
-                <TableHead>Atleta</TableHead>
-                <TableHead>Time</TableHead>
-                <TableHead className="w-16">Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {events?.map((ev: any) => (
-                <TableRow key={ev.id}>
-                  <TableCell>{ev.minute ? `${ev.minute}'` : "—"}</TableCell>
-                  <TableCell>{eventTypes.find(e => e.value === ev.event_type)?.label || ev.event_type}</TableCell>
-                  <TableCell>#{ev.athletes?.shirt_number} {ev.athletes?.name}</TableCell>
-                  <TableCell>{ev.teams?.short_name}</TableCell>
-                  <TableCell>
-                    <Button variant="ghost" size="icon" onClick={() => deleteEventMutation.mutate(ev.id)}>
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
+          {events && events.length > 0 ? (
+            <div className="space-y-2">
+              {events.map((ev: any) => (
+                <div key={ev.id} className="flex items-center justify-between gap-2 p-3 rounded-md border border-border">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className="text-xs text-muted-foreground shrink-0 w-8 text-center">{ev.minute ? `${ev.minute}'` : "—"}</span>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium truncate">
+                        {eventTypes.find(e => e.value === ev.event_type)?.label || ev.event_type}{" "}
+                        <span className="font-normal text-muted-foreground">— {ev.teams?.short_name}</span>
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        #{ev.athletes?.shirt_number} {ev.athletes?.name}
+                      </p>
+                    </div>
+                  </div>
+                  <Button variant="ghost" size="icon" className="shrink-0 h-8 w-8" onClick={() => deleteEventMutation.mutate(ev.id)}>
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </div>
               ))}
-              {(!events || events.length === 0) && (
-                <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground">Nenhum evento registrado</TableCell></TableRow>
-              )}
-            </TableBody>
-          </Table>
+            </div>
+          ) : (
+            <p className="text-center text-muted-foreground py-6">Nenhum evento registrado</p>
+          )}
         </CardContent>
       </Card>
 
