@@ -82,7 +82,7 @@ const Index = () => {
               custom={0}
               src={logoCopa}
               alt="Copa do Mundo Sporting"
-              className="h-28 w-28 md:h-40 md:w-40 mx-auto object-contain shadow-sport"
+              className="h-28 w-28 md:h-40 md:w-40 mx-auto object-contain"
             />
             <motion.h1
               variants={fadeUp}
