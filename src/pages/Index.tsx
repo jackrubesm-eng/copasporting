@@ -40,13 +40,13 @@ const Index = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <img src={logoCopa} alt="Copa Sporting 2026" className="h-40 w-40 mx-auto rounded-2xl object-cover shadow-sport mb-6" />
+              <img src={logoCopa} alt="Copa do Mundo Sporting" className="h-40 w-40 mx-auto rounded-2xl object-cover shadow-sport mb-6" />
               <h1 className="text-4xl md:text-6xl font-display font-bold text-field-foreground tracking-tight leading-tight">
-                COPA SPORTING
-                <span className="block text-gradient-gold">COPA DO MUNDO ESPORTE — 2026</span>
+                COPA DO MUNDO
+                <span className="block text-gradient-gold">SPORTING</span>
               </h1>
               <p className="mt-4 text-field-foreground/70 text-lg max-w-lg mx-auto">
-                Torneio interno anual. Edição 2026: tema Copa do Mundo. 6 seleções disputando em 3 categorias.
+                Torneio interno anual da Esporte. 6 seleções disputando em 3 categorias.
               </p>
               <div className="mt-6 flex flex-wrap gap-3 justify-center">
                 <Link
@@ -166,7 +166,7 @@ const Index = () => {
       <section className="py-12 bg-card border-t border-border">
         <div className="container">
           <h2 className="font-display text-xl font-bold text-foreground mb-2 uppercase tracking-wider text-center">Patrocinadores</h2>
-          <p className="text-sm text-muted-foreground text-center mb-8">Parceiros que fazem a Copa Sporting acontecer</p>
+          <p className="text-sm text-muted-foreground text-center mb-8">Parceiros que fazem a Copa do Mundo Sporting acontecer</p>
           <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12">
             {(sponsors || []).map((sponsor) => (
               <a

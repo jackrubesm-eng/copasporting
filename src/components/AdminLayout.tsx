@@ -44,7 +44,7 @@ const AdminLayout = () => {
         <Sidebar collapsible="icon">
           <SidebarContent>
             <div className="p-4 flex items-center gap-2">
-              <img src={logoCopa} alt="Copa Sporting" className="h-8 w-8 rounded-full object-cover" />
+              <img src={logoCopa} alt="Copa do Mundo Sporting" className="h-8 w-8 rounded-full object-cover" />
               <span className="font-display text-sm font-bold text-sidebar-foreground">ADMIN</span>
             </div>
             <SidebarGroup>
