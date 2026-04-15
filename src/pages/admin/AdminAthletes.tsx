@@ -5,10 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Pencil } from "lucide-react";
 
 const AdminAthletes = () => {
   const [name, setName] = useState("");
@@ -18,6 +18,14 @@ const AdminAthletes = () => {
   const [categoryId, setCategoryId] = useState("");
   const [shirtNumber, setShirtNumber] = useState("");
   const [position, setPosition] = useState("");
+  const [editAthlete, setEditAthlete] = useState<any>(null);
+  const [eName, setEName] = useState("");
+  const [eBirth, setEBirth] = useState("");
+  const [eDoc, setEDoc] = useState("");
+  const [eTeam, setETeam] = useState("");
+  const [eCat, setECat] = useState("");
+  const [eShirt, setEShirt] = useState("");
+  const [ePos, setEPos] = useState("");
   const qc = useQueryClient();
 
   const { data: teams } = useQuery({
@@ -56,6 +64,25 @@ const AdminAthletes = () => {
     onError: () => toast.error("Erro ao adicionar atleta"),
   });
 
+  const updateMutation = useMutation({
+    mutationFn: async () => {
+      if (!editAthlete) return;
+      const { error } = await supabase.from("athletes").update({
+        name: eName, birth_date: eBirth || null, document_number: eDoc || null,
+        team_id: eTeam, category_id: eCat,
+        shirt_number: eShirt ? parseInt(eShirt) : null,
+        position: ePos || null,
+      }).eq("id", editAthlete.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin-athletes"] });
+      setEditAthlete(null);
+      toast.success("Atleta atualizado");
+    },
+    onError: () => toast.error("Erro ao atualizar"),
+  });
+
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase.from("athletes").delete().eq("id", id);
@@ -63,6 +90,17 @@ const AdminAthletes = () => {
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin-athletes"] }); toast.success("Removido"); },
   });
+
+  const openEdit = (a: any) => {
+    setEditAthlete(a);
+    setEName(a.name);
+    setEBirth(a.birth_date || "");
+    setEDoc(a.document_number || "");
+    setETeam(a.team_id);
+    setECat(a.category_id);
+    setEShirt(a.shirt_number?.toString() || "");
+    setEPos(a.position || "");
+  };
 
   return (
     <div>
@@ -76,7 +114,7 @@ const AdminAthletes = () => {
               <div><Label>Data de Nascimento</Label><Input type="date" value={birthDate} onChange={e => setBirthDate(e.target.value)} /></div>
               <div><Label>Documento (CPF/RG)</Label><Input value={docNumber} onChange={e => setDocNumber(e.target.value)} /></div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
                 <Label>Time</Label>
                 <Select value={teamId} onValueChange={setTeamId}>
@@ -99,35 +137,60 @@ const AdminAthletes = () => {
         </CardContent>
       </Card>
       <Card>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Nome</TableHead>
-              <TableHead>Time</TableHead>
-              <TableHead>Categoria</TableHead>
-              <TableHead>Nº</TableHead>
-              <TableHead>Posição</TableHead>
-              <TableHead className="w-20">Ações</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {athletes?.map((a: any) => (
-              <TableRow key={a.id}>
-                <TableCell className="font-medium">{a.name}</TableCell>
-                <TableCell>{a.teams?.short_name}</TableCell>
-                <TableCell>{a.categories?.name}</TableCell>
-                <TableCell>{a.shirt_number}</TableCell>
-                <TableCell>{a.position}</TableCell>
-                <TableCell>
-                  <Button variant="ghost" size="icon" onClick={() => deleteMutation.mutate(a.id)}>
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <div className="divide-y divide-border">
+          {athletes?.map((a: any) => (
+            <div key={a.id} className="flex items-center gap-3 px-4 py-3">
+              <div className="flex-1 min-w-0">
+                <p className="font-medium truncate">{a.name} {a.shirt_number ? `#${a.shirt_number}` : ""}</p>
+                <p className="text-xs text-muted-foreground">{a.teams?.short_name} • {a.categories?.name} {a.position ? `• ${a.position}` : ""}</p>
+              </div>
+              <Button size="icon" variant="ghost" onClick={() => openEdit(a)}>
+                <Pencil className="h-4 w-4" />
+              </Button>
+              <Button size="icon" variant="ghost" onClick={() => deleteMutation.mutate(a.id)}>
+                <Trash2 className="h-4 w-4 text-destructive" />
+              </Button>
+            </div>
+          ))}
+        </div>
       </Card>
+
+      <Dialog open={!!editAthlete} onOpenChange={(open) => !open && setEditAthlete(null)}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Editar Atleta</DialogTitle></DialogHeader>
+          <form onSubmit={e => { e.preventDefault(); updateMutation.mutate(); }} className="space-y-4">
+            <div><Label>Nome</Label><Input value={eName} onChange={e => setEName(e.target.value)} required /></div>
+            <div className="grid grid-cols-2 gap-4">
+              <div><Label>Nascimento</Label><Input type="date" value={eBirth} onChange={e => setEBirth(e.target.value)} /></div>
+              <div><Label>Documento</Label><Input value={eDoc} onChange={e => setEDoc(e.target.value)} /></div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Time</Label>
+                <Select value={eTeam} onValueChange={setETeam}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>{teams?.map(t => <SelectItem key={t.id} value={t.id}>{t.short_name}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Categoria</Label>
+                <Select value={eCat} onValueChange={setECat}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>{categories?.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div><Label>Nº Camisa</Label><Input type="number" value={eShirt} onChange={e => setEShirt(e.target.value)} /></div>
+              <div><Label>Posição</Label><Input value={ePos} onChange={e => setEPos(e.target.value)} /></div>
+            </div>
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" type="button" onClick={() => setEditAthlete(null)}>Cancelar</Button>
+              <Button type="submit" disabled={updateMutation.isPending}>Salvar</Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
