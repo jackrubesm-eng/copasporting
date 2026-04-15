@@ -5,10 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Plus, Trash2, FileText } from "lucide-react";
+import { Plus, Trash2, FileText, Pencil } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const AdminMatches = () => {
@@ -19,6 +19,14 @@ const AdminMatches = () => {
   const [matchDate, setMatchDate] = useState("");
   const [matchTime, setMatchTime] = useState("");
   const [location, setLocation] = useState("");
+  const [editMatch, setEditMatch] = useState<any>(null);
+  const [eCat, setECat] = useState("");
+  const [eHome, setEHome] = useState("");
+  const [eAway, setEAway] = useState("");
+  const [eRound, setERound] = useState("");
+  const [eDate, setEDate] = useState("");
+  const [eTime, setETime] = useState("");
+  const [eLoc, setELoc] = useState("");
   const qc = useQueryClient();
 
   const { data: categories } = useQuery({
@@ -57,6 +65,23 @@ const AdminMatches = () => {
     onError: () => toast.error("Erro ao criar partida"),
   });
 
+  const updateMutation = useMutation({
+    mutationFn: async () => {
+      if (!editMatch) return;
+      const { error } = await supabase.from("matches").update({
+        category_id: eCat, home_team_id: eHome, away_team_id: eAway,
+        round: parseInt(eRound), match_date: eDate || null, match_time: eTime || null, location: eLoc || null,
+      }).eq("id", editMatch.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin-matches"] });
+      setEditMatch(null);
+      toast.success("Partida atualizada");
+    },
+    onError: () => toast.error("Erro ao atualizar"),
+  });
+
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase.from("matches").delete().eq("id", id);
@@ -64,6 +89,17 @@ const AdminMatches = () => {
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin-matches"] }); toast.success("Removida"); },
   });
+
+  const openEdit = (m: any) => {
+    setEditMatch(m);
+    setECat(m.category_id);
+    setEHome(m.home_team_id);
+    setEAway(m.away_team_id);
+    setERound(m.round?.toString() || "1");
+    setEDate(m.match_date || "");
+    setETime(m.match_time || "");
+    setELoc(m.location || "");
+  };
 
   return (
     <div>
@@ -81,21 +117,21 @@ const AdminMatches = () => {
                 </Select>
               </div>
               <div>
-                <Label>Time Mandante</Label>
+                <Label>Mandante</Label>
                 <Select value={homeTeamId} onValueChange={setHomeTeamId}>
                   <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
                   <SelectContent>{teams?.map(t => <SelectItem key={t.id} value={t.id}>{t.short_name}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
               <div>
-                <Label>Time Visitante</Label>
+                <Label>Visitante</Label>
                 <Select value={awayTeamId} onValueChange={setAwayTeamId}>
                   <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
                   <SelectContent>{teams?.map(t => <SelectItem key={t.id} value={t.id}>{t.short_name}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div><Label>Rodada</Label><Input type="number" value={round} onChange={e => setRound(e.target.value)} min={1} /></div>
               <div><Label>Data</Label><Input type="date" value={matchDate} onChange={e => setMatchDate(e.target.value)} /></div>
               <div><Label>Horário</Label><Input type="time" value={matchTime} onChange={e => setMatchTime(e.target.value)} /></div>
@@ -108,49 +144,75 @@ const AdminMatches = () => {
         </CardContent>
       </Card>
       <Card>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Categoria</TableHead>
-              <TableHead>Rodada</TableHead>
-              <TableHead>Mandante</TableHead>
-              <TableHead>Placar</TableHead>
-              <TableHead>Visitante</TableHead>
-              <TableHead>Data</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="w-28">Ações</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {matches?.map((m: any) => (
-              <TableRow key={m.id}>
-                <TableCell>{m.categories?.name}</TableCell>
-                <TableCell>{m.round}ª</TableCell>
-                <TableCell className="font-medium">{m.home?.short_name}</TableCell>
-                <TableCell className="text-center font-display font-bold">
-                  {m.status === "finished" ? `${m.home_score} x ${m.away_score}` : "—"}
-                  {m.decided_by === "penalties" && <span className="text-xs text-muted-foreground block">({m.home_penalties}x{m.away_penalties} pen)</span>}
-                </TableCell>
-                <TableCell className="font-medium">{m.away?.short_name}</TableCell>
-                <TableCell className="text-sm">{m.match_date || "—"}</TableCell>
-                <TableCell>
-                  <span className={`text-xs px-2 py-1 rounded-full ${m.status === "finished" ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
-                    {m.status === "finished" ? "Finalizada" : "Agendada"}
-                  </span>
-                </TableCell>
-                <TableCell className="flex gap-1">
-                  <Button variant="ghost" size="icon" asChild>
-                    <Link to={`/admin/sumula/${m.id}`}><FileText className="h-4 w-4" /></Link>
-                  </Button>
-                  <Button variant="ghost" size="icon" onClick={() => deleteMutation.mutate(m.id)}>
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <div className="divide-y divide-border">
+          {matches?.map((m: any) => (
+            <div key={m.id} className="flex items-center gap-3 px-4 py-3">
+              <div className="flex-1 min-w-0">
+                <p className="font-medium truncate">
+                  {m.home?.short_name} {m.status === "finished" ? `${m.home_score} x ${m.away_score}` : "vs"} {m.away?.short_name}
+                  {m.decided_by === "penalties" && <span className="text-xs text-muted-foreground ml-1">({m.home_penalties}x{m.away_penalties} pen)</span>}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {m.categories?.name} • {m.round}ª rodada {m.match_date ? `• ${m.match_date}` : ""} •{" "}
+                  <span className={m.status === "finished" ? "text-primary" : ""}>{m.status === "finished" ? "Finalizada" : "Agendada"}</span>
+                </p>
+              </div>
+              <Button size="icon" variant="ghost" asChild>
+                <Link to={`/admin/sumula/${m.id}`}><FileText className="h-4 w-4" /></Link>
+              </Button>
+              <Button size="icon" variant="ghost" onClick={() => openEdit(m)}>
+                <Pencil className="h-4 w-4" />
+              </Button>
+              <Button size="icon" variant="ghost" onClick={() => deleteMutation.mutate(m.id)}>
+                <Trash2 className="h-4 w-4 text-destructive" />
+              </Button>
+            </div>
+          ))}
+        </div>
       </Card>
+
+      <Dialog open={!!editMatch} onOpenChange={(open) => !open && setEditMatch(null)}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Editar Partida</DialogTitle></DialogHeader>
+          <form onSubmit={e => { e.preventDefault(); updateMutation.mutate(); }} className="space-y-4">
+            <div>
+              <Label>Categoria</Label>
+              <Select value={eCat} onValueChange={setECat}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>{categories?.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Mandante</Label>
+                <Select value={eHome} onValueChange={setEHome}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>{teams?.map(t => <SelectItem key={t.id} value={t.id}>{t.short_name}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Visitante</Label>
+                <Select value={eAway} onValueChange={setEAway}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>{teams?.map(t => <SelectItem key={t.id} value={t.id}>{t.short_name}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div><Label>Rodada</Label><Input type="number" value={eRound} onChange={e => setERound(e.target.value)} min={1} /></div>
+              <div><Label>Local</Label><Input value={eLoc} onChange={e => setELoc(e.target.value)} /></div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div><Label>Data</Label><Input type="date" value={eDate} onChange={e => setEDate(e.target.value)} /></div>
+              <div><Label>Horário</Label><Input type="time" value={eTime} onChange={e => setETime(e.target.value)} /></div>
+            </div>
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" type="button" onClick={() => setEditMatch(null)}>Cancelar</Button>
+              <Button type="submit" disabled={updateMutation.isPending}>Salvar</Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

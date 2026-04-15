@@ -4,12 +4,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Pencil, Check, X } from "lucide-react";
 
 const AdminCategories = () => {
   const [name, setName] = useState("");
+  const [editId, setEditId] = useState<string | null>(null);
+  const [editName, setEditName] = useState("");
   const qc = useQueryClient();
 
   const { data: categories } = useQuery({
@@ -27,6 +28,15 @@ const AdminCategories = () => {
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin-categories"] }); setName(""); toast.success("Categoria adicionada"); },
     onError: () => toast.error("Erro ao adicionar categoria"),
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, name }: { id: string; name: string }) => {
+      const { error } = await supabase.from("categories").update({ name }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin-categories"] }); setEditId(null); toast.success("Atualizada"); },
+    onError: () => toast.error("Erro ao atualizar"),
   });
 
   const deleteMutation = useMutation({
@@ -50,26 +60,33 @@ const AdminCategories = () => {
         </CardContent>
       </Card>
       <Card>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Nome</TableHead>
-              <TableHead className="w-20">Ações</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {categories?.map((cat) => (
-              <TableRow key={cat.id}>
-                <TableCell className="font-medium">{cat.name}</TableCell>
-                <TableCell>
-                  <Button variant="ghost" size="icon" onClick={() => deleteMutation.mutate(cat.id)}>
+        <div className="divide-y divide-border">
+          {categories?.map((cat) => (
+            <div key={cat.id} className="flex items-center gap-3 px-4 py-3">
+              {editId === cat.id ? (
+                <>
+                  <Input value={editName} onChange={e => setEditName(e.target.value)} className="flex-1" autoFocus />
+                  <Button size="icon" variant="ghost" onClick={() => updateMutation.mutate({ id: cat.id, name: editName })} disabled={updateMutation.isPending}>
+                    <Check className="h-4 w-4 text-primary" />
+                  </Button>
+                  <Button size="icon" variant="ghost" onClick={() => setEditId(null)}>
+                    <X className="h-4 w-4" />
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <span className="flex-1 font-medium">{cat.name}</span>
+                  <Button size="icon" variant="ghost" onClick={() => { setEditId(cat.id); setEditName(cat.name); }}>
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button size="icon" variant="ghost" onClick={() => deleteMutation.mutate(cat.id)}>
                     <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                </>
+              )}
+            </div>
+          ))}
+        </div>
       </Card>
     </div>
   );
