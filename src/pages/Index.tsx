@@ -82,16 +82,9 @@ const Index = () => {
             variants={stagger}
             className="flex flex-col items-center text-center gap-4"
           >
-            <motion.div
-              variants={fadeUp}
-              custom={0}
-              className="glass-panel rounded-full px-3 py-1 text-[10px] md:text-xs font-display uppercase tracking-[0.3em] text-field-foreground/80"
-            >
-              Torneio interno 2026
-            </motion.div>
             <motion.img
               variants={fadeUp}
-              custom={1}
+              custom={0}
               src={logoCopa}
               alt="Copa do Mundo Sporting"
               className="h-28 w-28 md:h-40 md:w-40 mx-auto object-contain drop-shadow-[0_16px_30px_hsl(var(--primary)/0.35)]"
