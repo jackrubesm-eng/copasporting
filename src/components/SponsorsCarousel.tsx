@@ -49,7 +49,7 @@ const SponsorsCarousel = ({ sponsors }: { sponsors: Sponsor[] }) => {
                 <img
                   src={sponsors[current].logo_url!}
                   alt={sponsors[current].name}
-                  className="h-16 max-w-[160px] object-contain"
+                  className="h-24 w-24 rounded-full object-cover border-2 border-border shadow-md"
                 />
               ) : (
                 <div className="bg-muted rounded-xl px-6 py-4">
