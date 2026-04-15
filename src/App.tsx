@@ -22,6 +22,7 @@ import AdminAthletes from "./pages/admin/AdminAthletes";
 import AdminMatches from "./pages/admin/AdminMatches";
 import AdminMatchReport from "./pages/admin/AdminMatchReport";
 import AdminSponsors from "./pages/admin/AdminSponsors";
+import AdminSumulas from "./pages/admin/AdminSumulas";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,7 @@ const App = () => (
             <Route path="times" element={<AdminTeams />} />
             <Route path="atletas" element={<AdminAthletes />} />
             <Route path="partidas" element={<AdminMatches />} />
+            <Route path="sumulas" element={<AdminSumulas />} />
             <Route path="sumula/:matchId" element={<AdminMatchReport />} />
             <Route path="patrocinadores" element={<AdminSponsors />} />
           </Route>
