@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import logoCopa from "@/assets/logo-copa-sporting.jpeg";
+import logoCopa from "@/assets/logo-copa-sporting.png";
 
 const navItems = [
   { label: "Home", path: "/" },
