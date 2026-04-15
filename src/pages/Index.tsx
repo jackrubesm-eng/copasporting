@@ -230,36 +230,32 @@ const Index = () => {
         </motion.div>
       </section>
 
-      {/* Seleções por Categoria */}
+      {/* Seleções Participantes */}
       <section className="bg-field py-8 md:py-12">
         <div className="container px-3">
           <h2 className="font-display text-lg font-bold text-field-foreground mb-4 uppercase tracking-wider">Seleções Participantes</h2>
-          {categories.map((cat, catIdx) => (
-            <motion.div
-              key={cat}
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: catIdx * 0.15 }}
-              className="mb-6 last:mb-0"
-            >
-              <h3 className="font-display text-xs font-bold text-primary uppercase tracking-wider mb-2">{cat}</h3>
-              <div className="flex gap-4 overflow-x-auto pb-2 snap-x scrollbar-hide md:grid md:grid-cols-6 md:overflow-visible">
-                {teams.map((team) => (
-                  <Link
-                    key={`${team.id}-${cat}`}
-                    to={`/times/${team.id}?categoria=${encodeURIComponent(cat)}`}
-                    className="flex flex-col items-center gap-1.5 snap-center min-w-[64px] group"
-                  >
-                    <div className="bg-card rounded-full p-1.5 shadow-card-sport group-hover:shadow-sport group-active:scale-95 transition-all">
-                      <img src={team.logo} alt={`${team.shortName} - ${cat}`} className="h-12 w-12 rounded-full object-cover" loading="lazy" />
-                    </div>
-                    <span className="text-[10px] font-medium text-field-foreground/80 text-center leading-tight">{team.shortName}</span>
-                  </Link>
-                ))}
-              </div>
-            </motion.div>
-          ))}
+          <div className="flex gap-4 overflow-x-auto pb-2 snap-x scrollbar-hide md:grid md:grid-cols-6 md:overflow-visible">
+            {teams.map((team, i) => (
+              <motion.div
+                key={team.id}
+                initial={{ opacity: 0, scale: 0.8 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.08 }}
+              >
+                <Link
+                  to={`/times/${team.id}`}
+                  className="flex flex-col items-center gap-1.5 snap-center min-w-[64px] group"
+                >
+                  <div className="bg-card rounded-full p-1.5 shadow-card-sport group-hover:shadow-sport group-active:scale-95 transition-all">
+                    <img src={team.logo} alt={team.shortName} className="h-12 w-12 rounded-full object-cover" loading="lazy" />
+                  </div>
+                  <span className="text-[10px] font-medium text-field-foreground/80 text-center leading-tight">{team.shortName}</span>
+                  <span className="text-[8px] text-field-foreground/50">{categories.join(" • ")}</span>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
