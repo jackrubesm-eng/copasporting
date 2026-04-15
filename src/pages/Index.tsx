@@ -167,30 +167,47 @@ const Index = () => {
 
       {/* Matches — stacked on mobile */}
       <section className="bg-muted py-8 md:py-12">
-        <div className="container px-3 space-y-8 md:space-y-0 md:grid md:grid-cols-2 md:gap-8">
-          <div>
-            <h2 className="font-display text-lg font-bold text-foreground mb-3 uppercase tracking-wider flex items-center gap-2">
-              <Zap className="h-4 w-4 text-accent" /> Últimos Resultados
-            </h2>
-            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="space-y-2">
-              {recentMatches.map((m, i) => (
-                <motion.div key={m.id} variants={fadeUp} custom={i}>
-                  <MatchCard match={m} />
-                </motion.div>
-              ))}
-            </motion.div>
+        <div className="container px-3">
+          <div className="flex gap-2 mb-4 overflow-x-auto scrollbar-hide">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setMatchCat(cat)}
+                className={`px-3 py-1.5 rounded-full text-xs font-display uppercase tracking-wider whitespace-nowrap transition-all active:scale-95 ${
+                  matchCat === cat
+                    ? "bg-primary text-primary-foreground shadow-sport"
+                    : "bg-card text-muted-foreground border border-border hover:border-primary/40"
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
           </div>
-          <div>
-            <h2 className="font-display text-lg font-bold text-foreground mb-3 uppercase tracking-wider flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-secondary" /> Próximos Jogos
-            </h2>
-            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="space-y-2">
-              {nextMatches.map((m, i) => (
-                <motion.div key={m.id} variants={fadeUp} custom={i}>
-                  <MatchCard match={m} />
-                </motion.div>
-              ))}
-            </motion.div>
+          <div className="space-y-8 md:space-y-0 md:grid md:grid-cols-2 md:gap-8">
+            <div>
+              <h2 className="font-display text-lg font-bold text-foreground mb-3 uppercase tracking-wider flex items-center gap-2">
+                <Zap className="h-4 w-4 text-accent" /> Últimos Resultados
+              </h2>
+              <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="space-y-2" key={`recent-${matchCat}`}>
+                {recentMatches.length > 0 ? recentMatches.map((m, i) => (
+                  <motion.div key={m.id} variants={fadeUp} custom={i}>
+                    <MatchCard match={m} />
+                  </motion.div>
+                )) : <p className="text-sm text-muted-foreground py-4 text-center">Nenhum resultado ainda</p>}
+              </motion.div>
+            </div>
+            <div>
+              <h2 className="font-display text-lg font-bold text-foreground mb-3 uppercase tracking-wider flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-secondary" /> Próximos Jogos
+              </h2>
+              <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="space-y-2" key={`next-${matchCat}`}>
+                {nextMatches.length > 0 ? nextMatches.map((m, i) => (
+                  <motion.div key={m.id} variants={fadeUp} custom={i}>
+                    <MatchCard match={m} />
+                  </motion.div>
+                )) : <p className="text-sm text-muted-foreground py-4 text-center">Nenhum jogo agendado</p>}
+              </motion.div>
+            </div>
           </div>
         </div>
       </section>
