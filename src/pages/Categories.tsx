@@ -14,7 +14,7 @@ const Categories = () => (
         >
           <Trophy className="h-8 w-8 text-primary mx-auto mb-3 group-hover:scale-110 transition-transform" />
           <span className="font-display text-2xl font-bold text-foreground">{cat}</span>
-          <p className="text-sm text-muted-foreground mt-2">6 equipes • Todos contra todos</p>
+          <p className="text-sm text-muted-foreground mt-2">6 seleções • Todos contra todos</p>
         </Link>
       ))}
     </div>

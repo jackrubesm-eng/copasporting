@@ -5,16 +5,16 @@ const Regulamento = () => (
     <div className="prose prose-sm max-w-none space-y-6">
       {[
         {
-          title: "1. Modalidade",
-          content: "A Copa Pampa é disputada na modalidade Futebol 7, com equipes compostas por 7 jogadores em campo."
+          title: "1. Torneio",
+          content: "A Copa Sporting é um torneio interno anual da Esporte. Na edição 2026, o tema é Copa do Mundo, com seleções representando os países participantes."
         },
         {
           title: "2. Categorias",
-          content: "Sub 7, Sub 9, Sub 11, Sub 13 e Sub 15. Cada categoria conta com 6 equipes."
+          content: "Pré-mirim, Mirim e Infantil. Cada categoria conta com 6 seleções."
         },
         {
           title: "3. Formato",
-          content: "Fase de grupos com todos contra todos dentro da mesma categoria."
+          content: "Fase de grupos com todos contra todos dentro da mesma categoria. As seleções jogam apenas contra adversários da mesma categoria."
         },
         {
           title: "4. Pontuação",

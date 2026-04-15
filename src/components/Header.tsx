@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
-import logoCopa from "@/assets/logo-copa.png";
+import logoCopa from "@/assets/logo-copa-sporting.jpeg";
 
 const navItems = [
   { label: "Home", path: "/" },
   { label: "Categorias", path: "/categorias" },
-  { label: "Times", path: "/times" },
+  { label: "Seleções", path: "/times" },
   { label: "Regulamento", path: "/regulamento" },
   { label: "Contato", path: "/contato" },
 ];
@@ -19,10 +19,10 @@ const Header = () => {
     <header className="sticky top-0 z-50 bg-field border-b border-primary/20 backdrop-blur-sm">
       <div className="container flex items-center justify-between h-16">
         <Link to="/" className="flex items-center gap-2">
-          <img src={logoCopa} alt="Copa Pampa Fut 7 2026" className="h-12 w-12 rounded-full object-cover" />
+          <img src={logoCopa} alt="Copa Sporting 2026" className="h-12 w-12 rounded-full object-cover" />
           <div>
-            <span className="font-display text-lg font-bold text-field-foreground tracking-wide">COPA PAMPA</span>
-            <span className="block text-xs text-primary-foreground/70 font-body -mt-1">FUT 7 • 2026</span>
+            <span className="font-display text-lg font-bold text-field-foreground tracking-wide">COPA SPORTING</span>
+            <span className="block text-xs text-primary font-body -mt-1">Copa do Mundo Esporte • 2026</span>
           </div>
         </Link>
 

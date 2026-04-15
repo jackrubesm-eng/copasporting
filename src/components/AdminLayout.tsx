@@ -4,12 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { SidebarProvider, SidebarTrigger, Sidebar, SidebarContent, SidebarGroup, SidebarGroupLabel, SidebarGroupContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 import { Users, Shield, Trophy, Calendar, Handshake, LogOut, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import logoCopa from "@/assets/logo-copa.png";
+import logoCopa from "@/assets/logo-copa-sporting.jpeg";
 
 const menuItems = [
   { title: "Dashboard", url: "/admin", icon: Home },
   { title: "Categorias", url: "/admin/categorias", icon: Trophy },
-  { title: "Times", url: "/admin/times", icon: Shield },
+  { title: "Seleções", url: "/admin/times", icon: Shield },
   { title: "Atletas", url: "/admin/atletas", icon: Users },
   { title: "Partidas", url: "/admin/partidas", icon: Calendar },
   { title: "Patrocinadores", url: "/admin/patrocinadores", icon: Handshake },
@@ -44,7 +44,7 @@ const AdminLayout = () => {
         <Sidebar collapsible="icon">
           <SidebarContent>
             <div className="p-4 flex items-center gap-2">
-              <img src={logoCopa} alt="Copa Pampa" className="h-8 w-8 rounded-full object-cover" />
+              <img src={logoCopa} alt="Copa Sporting" className="h-8 w-8 rounded-full object-cover" />
               <span className="font-display text-sm font-bold text-sidebar-foreground">ADMIN</span>
             </div>
             <SidebarGroup>
