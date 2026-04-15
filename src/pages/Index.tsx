@@ -131,7 +131,7 @@ const Index = () => {
                 {team && <img src={team.logo} alt={team.shortName} className="h-7 w-7 rounded-full object-cover" loading="lazy" />}
                 <div className="flex-1">
                   <p className="font-medium text-foreground text-sm">{scorer.name}</p>
-                  <p className="text-xs text-muted-foreground">{team?.shortName}</p>
+                  <p className="text-xs text-muted-foreground">{team?.shortName} • Pré-mirim</p>
                 </div>
                 <span className="font-display text-xl font-bold text-primary">{scorer.goals}</span>
                 <span className="text-xs text-muted-foreground">gols</span>
@@ -141,24 +141,29 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Seleções */}
+      {/* Seleções por Categoria */}
       <section className="bg-field py-12">
         <div className="container">
           <h2 className="font-display text-xl font-bold text-field-foreground mb-6 uppercase tracking-wider">Seleções Participantes</h2>
-          <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
-            {teams.map((team) => (
-              <Link
-                key={team.id}
-                to={`/times/${team.id}`}
-                className="flex flex-col items-center gap-2 group"
-              >
-                <div className="bg-card rounded-full p-2 shadow-card-sport group-hover:shadow-sport transition-shadow">
-                  <img src={team.logo} alt={team.shortName} className="h-16 w-16 rounded-full object-cover" loading="lazy" />
-                </div>
-                <span className="text-xs font-medium text-field-foreground/80 text-center leading-tight">{team.shortName}</span>
-              </Link>
-            ))}
-          </div>
+          {categories.map((cat) => (
+            <div key={cat} className="mb-8 last:mb-0">
+              <h3 className="font-display text-sm font-bold text-primary uppercase tracking-wider mb-3">{cat}</h3>
+              <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
+                {teams.map((team) => (
+                  <Link
+                    key={`${team.id}-${cat}`}
+                    to={`/times/${team.id}?categoria=${encodeURIComponent(cat)}`}
+                    className="flex flex-col items-center gap-2 group"
+                  >
+                    <div className="bg-card rounded-full p-2 shadow-card-sport group-hover:shadow-sport transition-shadow">
+                      <img src={team.logo} alt={`${team.shortName} - ${cat}`} className="h-14 w-14 rounded-full object-cover" loading="lazy" />
+                    </div>
+                    <span className="text-xs font-medium text-field-foreground/80 text-center leading-tight">{team.shortName}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 

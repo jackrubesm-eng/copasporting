@@ -1,5 +1,5 @@
-import { useParams, Link } from "react-router-dom";
-import { getTeamById, categories } from "@/data/teams";
+import { useParams, useSearchParams, Link } from "react-router-dom";
+import { getTeamById, categories, type Category } from "@/data/teams";
 import { ArrowLeft } from "lucide-react";
 
 const mockAthletes = [
@@ -12,7 +12,9 @@ const mockAthletes = [
 
 const TeamDetail = () => {
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
   const team = getTeamById(id || "");
+  const selectedCategory = searchParams.get("categoria") as Category | null;
 
   if (!team) {
     return (
@@ -22,6 +24,10 @@ const TeamDetail = () => {
       </div>
     );
   }
+
+  const categoriesToShow = selectedCategory && categories.includes(selectedCategory)
+    ? [selectedCategory]
+    : [...categories];
 
   return (
     <div className="container py-8">
@@ -33,15 +39,36 @@ const TeamDetail = () => {
         <img src={team.logo} alt={team.name} className="h-20 w-20 rounded-full object-cover shadow-sport" />
         <div>
           <h1 className="font-display text-3xl font-bold text-foreground">{team.name}</h1>
-          <p className="text-sm text-muted-foreground">
-            Categorias: {team.categories.join(", ")}
-          </p>
+          {selectedCategory && (
+            <span className="inline-block mt-1 text-sm bg-primary/10 text-primary font-medium px-3 py-0.5 rounded-full">{selectedCategory}</span>
+          )}
+          {!selectedCategory && (
+            <p className="text-sm text-muted-foreground mt-1">
+              Presente em: {categories.join(", ")}
+            </p>
+          )}
         </div>
       </div>
 
-      {categories.map((cat) => (
+      {!selectedCategory && (
+        <div className="flex gap-2 mb-6">
+          {categories.map((cat) => (
+            <Link
+              key={cat}
+              to={`/times/${team.id}?categoria=${encodeURIComponent(cat)}`}
+              className="text-sm bg-muted hover:bg-primary/10 hover:text-primary px-3 py-1.5 rounded-full transition-colors font-medium"
+            >
+              {cat}
+            </Link>
+          ))}
+        </div>
+      )}
+
+      {categoriesToShow.map((cat) => (
         <section key={cat} className="mb-8">
-          <h2 className="font-display text-xl font-bold text-foreground uppercase tracking-wider mb-3">{cat}</h2>
+          <h2 className="font-display text-xl font-bold text-foreground uppercase tracking-wider mb-3">
+            {team.shortName} — <span className="text-primary">{cat}</span>
+          </h2>
           <div className="overflow-x-auto rounded-lg border border-border shadow-card-sport">
             <table className="w-full text-sm">
               <thead>
