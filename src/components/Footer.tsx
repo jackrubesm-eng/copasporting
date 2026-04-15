@@ -11,9 +11,17 @@ const Footer = () => (
             <p className="text-sm text-field-foreground/60">Torneio Interno Esporte</p>
           </div>
         </div>
-        <p className="text-sm text-field-foreground/50">
-          © Copa do Mundo Sporting — Torneio Interno Esporte. Todos os direitos reservados.
-        </p>
+        <div className="text-center md:text-right space-y-1">
+          <p className="text-sm text-field-foreground/50">
+            © Copa do Mundo Sporting — Torneio Interno Esporte. Todos os direitos reservados.
+          </p>
+          <p className="text-xs text-field-foreground/40">
+            Desenvolvido por{" "}
+            <a href="https://armtech.net.br" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">
+              Arm Tech
+            </a>
+          </p>
+        </div>
       </div>
     </div>
   </footer>
