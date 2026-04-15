@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Save, Plus, Trash2 } from "lucide-react";
+import { Save, Plus, Trash2, UserPlus } from "lucide-react";
 
 const eventTypes = [
   { value: "goal", label: "⚽ Gol" },
@@ -28,9 +28,11 @@ const AdminMatchReport = () => {
   const [awayPen, setAwayPen] = useState("");
 
   const [eventType, setEventType] = useState("");
-  const [eventAthleteId, setEventAthleteId] = useState("");
   const [eventTeamId, setEventTeamId] = useState("");
   const [eventMinute, setEventMinute] = useState("");
+  const [athleteSearch, setAthleteSearch] = useState("");
+  const [selectedAthleteId, setSelectedAthleteId] = useState<string | null>(null);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   const { data: match } = useQuery({
     queryKey: ["admin-match", matchId],
@@ -48,7 +50,7 @@ const AdminMatchReport = () => {
     },
   });
 
-  const { data: athletes } = useQuery({
+  const { data: athletes, refetch: refetchAthletes } = useQuery({
     queryKey: ["admin-match-athletes", match?.home_team_id, match?.away_team_id, match?.category_id],
     enabled: !!match,
     queryFn: async () => {
@@ -72,6 +74,22 @@ const AdminMatchReport = () => {
     },
   });
 
+  // Filter athletes based on search and selected team
+  const filteredAthletes = useMemo(() => {
+    if (!athletes || !athleteSearch.trim()) return [];
+    const search = athleteSearch.toLowerCase().trim();
+    return athletes.filter(a => {
+      const matchesName = a.name.toLowerCase().includes(search);
+      const matchesTeam = !eventTeamId || a.team_id === eventTeamId;
+      return matchesName && matchesTeam;
+    });
+  }, [athletes, athleteSearch, eventTeamId]);
+
+  const exactMatch = useMemo(() => {
+    if (!athletes || !athleteSearch.trim()) return null;
+    return athletes.find(a => a.name.toLowerCase() === athleteSearch.toLowerCase().trim() && (!eventTeamId || a.team_id === eventTeamId));
+  }, [athletes, athleteSearch, eventTeamId]);
+
   const saveMutation = useMutation({
     mutationFn: async () => {
       const hs = homeScore ? parseInt(homeScore) : null;
@@ -89,20 +107,54 @@ const AdminMatchReport = () => {
     onError: () => toast.error("Erro ao salvar"),
   });
 
+  // Create athlete on the fly and then add the event
+  const createAthleteAndAddEvent = async () => {
+    if (!match || !eventTeamId || !athleteSearch.trim() || !eventType) return;
+
+    let athleteId = selectedAthleteId;
+
+    // If no athlete selected, create a new one
+    if (!athleteId) {
+      const { data: newAthlete, error: createError } = await supabase.from("athletes").insert({
+        name: athleteSearch.trim(),
+        team_id: eventTeamId,
+        category_id: match.category_id,
+      }).select("id").single();
+
+      if (createError) {
+        toast.error("Erro ao cadastrar atleta");
+        return;
+      }
+      athleteId = newAthlete.id;
+      toast.success(`Atleta "${athleteSearch.trim()}" cadastrado automaticamente!`);
+      refetchAthletes();
+    }
+
+    // Now add the event
+    const { error } = await supabase.from("match_events").insert({
+      match_id: matchId!,
+      athlete_id: athleteId,
+      team_id: eventTeamId,
+      event_type: eventType,
+      minute: eventMinute ? parseInt(eventMinute) : null,
+    });
+
+    if (error) {
+      toast.error("Erro ao registrar evento");
+      return;
+    }
+
+    qc.invalidateQueries({ queryKey: ["admin-match-events", matchId] });
+    setEventType("");
+    setAthleteSearch("");
+    setSelectedAthleteId(null);
+    setEventMinute("");
+    setEventTeamId("");
+    toast.success("Evento registrado");
+  };
+
   const addEventMutation = useMutation({
-    mutationFn: async () => {
-      const athlete = athletes?.find(a => a.id === eventAthleteId);
-      const { error } = await supabase.from("match_events").insert({
-        match_id: matchId!, athlete_id: eventAthleteId, team_id: athlete?.team_id || eventTeamId,
-        event_type: eventType, minute: eventMinute ? parseInt(eventMinute) : null,
-      });
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["admin-match-events", matchId] });
-      setEventType(""); setEventAthleteId(""); setEventMinute("");
-      toast.success("Evento registrado");
-    },
+    mutationFn: createAthleteAndAddEvent,
   });
 
   const deleteEventMutation = useMutation({
@@ -112,29 +164,31 @@ const AdminMatchReport = () => {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-match-events", matchId] }),
   });
 
-  if (!match) return <div>Carregando...</div>;
+  if (!match) return <div className="p-4">Carregando...</div>;
 
-  const homeAthletes = athletes?.filter(a => a.team_id === match.home_team_id) || [];
-  const awayAthletes = athletes?.filter(a => a.team_id === match.away_team_id) || [];
+  const homeName = (match as any).home?.short_name || "Casa";
+  const awayName = (match as any).away?.short_name || "Fora";
+
+  const canAddEvent = eventType && eventTeamId && athleteSearch.trim();
 
   return (
     <div>
       <h1 className="font-display text-2xl font-bold mb-2">Súmula</h1>
-      <p className="text-muted-foreground mb-6">{match.categories?.name} — {(match as any).home?.short_name} vs {(match as any).away?.short_name}</p>
+      <p className="text-muted-foreground mb-6">{match.categories?.name} — {homeName} vs {awayName}</p>
 
       <div className="grid md:grid-cols-2 gap-6 mb-6">
         <Card>
           <CardHeader><CardTitle className="text-lg">Placar</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <div><Label>{(match as any).home?.short_name}</Label><Input type="number" min={0} value={homeScore} onChange={e => setHomeScore(e.target.value)} /></div>
-              <div><Label>{(match as any).away?.short_name}</Label><Input type="number" min={0} value={awayScore} onChange={e => setAwayScore(e.target.value)} /></div>
+              <div><Label>{homeName}</Label><Input type="number" min={0} value={homeScore} onChange={e => setHomeScore(e.target.value)} /></div>
+              <div><Label>{awayName}</Label><Input type="number" min={0} value={awayScore} onChange={e => setAwayScore(e.target.value)} /></div>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div><Label>Pênaltis (M)</Label><Input type="number" min={0} value={homePen} onChange={e => setHomePen(e.target.value)} /></div>
-              <div><Label>Pênaltis (V)</Label><Input type="number" min={0} value={awayPen} onChange={e => setAwayPen(e.target.value)} /></div>
+              <div><Label>Pênaltis ({homeName})</Label><Input type="number" min={0} value={homePen} onChange={e => setHomePen(e.target.value)} /></div>
+              <div><Label>Pênaltis ({awayName})</Label><Input type="number" min={0} value={awayPen} onChange={e => setAwayPen(e.target.value)} /></div>
             </div>
-            <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending}>
+            <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending} className="w-full">
               <Save className="h-4 w-4 mr-1" /> Salvar Placar
             </Button>
           </CardContent>
@@ -151,30 +205,69 @@ const AdminMatchReport = () => {
                   <SelectContent>{eventTypes.map(e => <SelectItem key={e.value} value={e.value}>{e.label}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
-              <div><Label>Minuto</Label><Input type="number" min={0} value={eventMinute} onChange={e => setEventMinute(e.target.value)} /></div>
+              <div>
+                <Label>Time</Label>
+                <Select value={eventTeamId} onValueChange={(v) => { setEventTeamId(v); setSelectedAthleteId(null); }}>
+                  <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={match.home_team_id}>{homeName}</SelectItem>
+                    <SelectItem value={match.away_team_id}>{awayName}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
+
+            <div className="relative">
+              <Label>Atleta (digite o nome)</Label>
+              <Input
+                placeholder="Ex: Fernando Monteiro"
+                value={athleteSearch}
+                onChange={(e) => {
+                  setAthleteSearch(e.target.value);
+                  setSelectedAthleteId(null);
+                  setShowSuggestions(true);
+                }}
+                onFocus={() => setShowSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+              />
+              {showSuggestions && athleteSearch.trim() && filteredAthletes.length > 0 && (
+                <div className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-md shadow-lg max-h-48 overflow-y-auto">
+                  {filteredAthletes.map(a => (
+                    <button
+                      key={a.id}
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        setAthleteSearch(a.name);
+                        setSelectedAthleteId(a.id);
+                        if (!eventTeamId) setEventTeamId(a.team_id);
+                        setShowSuggestions(false);
+                      }}
+                    >
+                      <span className="font-medium">#{a.shirt_number} {a.name}</span>
+                      <span className="text-muted-foreground ml-2">({(a as any).teams?.short_name})</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+              {athleteSearch.trim() && !selectedAthleteId && !exactMatch && eventTeamId && (
+                <p className="text-xs text-warning mt-1 flex items-center gap-1">
+                  <UserPlus className="h-3 w-3" />
+                  Atleta será cadastrado automaticamente
+                </p>
+              )}
+              {selectedAthleteId && (
+                <p className="text-xs text-primary mt-1">✓ Atleta já cadastrado</p>
+              )}
+            </div>
+
             <div>
-              <Label>Atleta</Label>
-              <Select value={eventAthleteId} onValueChange={setEventAthleteId}>
-                <SelectTrigger><SelectValue placeholder="Selecione o atleta" /></SelectTrigger>
-                <SelectContent>
-                  {homeAthletes.length > 0 && (
-                    <>
-                      <SelectItem value="__home_header" disabled>{(match as any).home?.short_name}</SelectItem>
-                      {homeAthletes.map(a => <SelectItem key={a.id} value={a.id}>#{a.shirt_number} {a.name}</SelectItem>)}
-                    </>
-                  )}
-                  {awayAthletes.length > 0 && (
-                    <>
-                      <SelectItem value="__away_header" disabled>{(match as any).away?.short_name}</SelectItem>
-                      {awayAthletes.map(a => <SelectItem key={a.id} value={a.id}>#{a.shirt_number} {a.name}</SelectItem>)}
-                    </>
-                  )}
-                </SelectContent>
-              </Select>
+              <Label>Minuto (opcional)</Label>
+              <Input type="number" min={0} value={eventMinute} onChange={e => setEventMinute(e.target.value)} placeholder="Ex: 15" />
             </div>
-            <Button onClick={() => addEventMutation.mutate()} disabled={!eventType || !eventAthleteId}>
-              <Plus className="h-4 w-4 mr-1" /> Adicionar
+
+            <Button onClick={() => addEventMutation.mutate()} disabled={!canAddEvent || addEventMutation.isPending} className="w-full">
+              <Plus className="h-4 w-4 mr-1" /> Adicionar Evento
             </Button>
           </CardContent>
         </Card>
