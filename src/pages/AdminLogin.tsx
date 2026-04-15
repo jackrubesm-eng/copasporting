@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import logoCopa from "@/assets/logo-copa.png";
+import logoCopa from "@/assets/logo-copa-sporting.jpeg";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -30,7 +30,7 @@ const AdminLogin = () => {
     <div className="min-h-screen bg-field flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <img src={logoCopa} alt="Copa Pampa" className="h-20 w-20 mx-auto rounded-xl object-cover mb-4" />
+          <img src={logoCopa} alt="Copa Sporting" className="h-20 w-20 mx-auto rounded-xl object-cover mb-4" />
           <CardTitle className="font-display text-2xl">Área Administrativa</CardTitle>
         </CardHeader>
         <CardContent>

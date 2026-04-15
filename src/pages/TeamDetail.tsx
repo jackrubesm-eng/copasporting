@@ -2,7 +2,6 @@ import { useParams, Link } from "react-router-dom";
 import { getTeamById, categories } from "@/data/teams";
 import { ArrowLeft } from "lucide-react";
 
-// Mock athletes
 const mockAthletes = [
   { name: "Lucas Silva", birth: 2015, number: 10, goals: 5, assists: 2, yellowCards: 0, redCards: 0, matches: 3 },
   { name: "Pedro Henrique", birth: 2015, number: 7, goals: 3, assists: 1, yellowCards: 1, redCards: 0, matches: 3 },
@@ -18,7 +17,7 @@ const TeamDetail = () => {
   if (!team) {
     return (
       <div className="container py-20 text-center">
-        <p className="text-muted-foreground">Equipe não encontrada.</p>
+        <p className="text-muted-foreground">Seleção não encontrada.</p>
         <Link to="/times" className="text-primary underline mt-4 inline-block">Voltar</Link>
       </div>
     );

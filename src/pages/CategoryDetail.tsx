@@ -64,7 +64,7 @@ const CategoryDetail = () => {
             return (
               <div key={i} className={`flex items-center gap-3 px-4 py-3 ${i > 0 ? "border-t border-border" : ""}`}>
                 <span className="font-display font-bold text-lg text-muted-foreground w-8">{i + 1}º</span>
-                {team && <img src={team.logo} alt={team.shortName} className="h-7 w-7 rounded-full object-cover" />}
+                {team && <img src={team.logo} alt={team.shortName} className="h-7 w-7 rounded-full object-cover" loading="lazy" />}
                 <div className="flex-1">
                   <p className="font-medium text-foreground text-sm">{scorer.name}</p>
                   <p className="text-xs text-muted-foreground">{team?.shortName}</p>
@@ -81,12 +81,12 @@ const CategoryDetail = () => {
         <h2 className="font-display text-xl font-bold text-foreground uppercase tracking-wider mb-4">Scouts</h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {[
-            { label: "Melhor Ataque", team: "GB Restinga", value: "12 gols" },
-            { label: "Melhor Defesa", team: "AABB", value: "2 gols sofridos" },
-            { label: "Mais Disciplinado", team: "Sporting 42", value: "0 cartões" },
-            { label: "Melhor Mandante", team: "GB Restinga", value: "100% aprov." },
-            { label: "Melhor Visitante", team: "Santos POA", value: "67% aprov." },
-            { label: "Mais Cartões", team: "Super Dez", value: "4 cartões" },
+            { label: "Melhor Ataque", team: "Brasil", value: "12 gols" },
+            { label: "Melhor Defesa", team: "Japão", value: "2 gols sofridos" },
+            { label: "Mais Disciplinado", team: "Espanha", value: "0 cartões" },
+            { label: "Melhor Mandante", team: "Brasil", value: "100% aprov." },
+            { label: "Melhor Visitante", team: "Argentina", value: "67% aprov." },
+            { label: "Mais Cartões", team: "Marrocos", value: "4 cartões" },
           ].map((s) => (
             <div key={s.label} className="bg-card border border-border rounded-lg p-4 shadow-card-sport">
               <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">{s.label}</p>
