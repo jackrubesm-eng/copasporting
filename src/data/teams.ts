@@ -59,6 +59,18 @@ export interface TopScorer {
   goals: number;
 }
 
+export interface TopAssist {
+  name: string;
+  teamId: string;
+  assists: number;
+}
+
+export interface LeastConceded {
+  teamId: string;
+  goalsAgainst: number;
+  matchesPlayed: number;
+}
+
 export function getStandings(category: Category): Standing[] {
   const mockStandings: Standing[] = teams.map((team, i) => ({
     teamId: team.id,
@@ -106,4 +118,22 @@ export function getTopScorers(category: Category): TopScorer[] {
 
 export function getTeamById(id: string): Team | undefined {
   return teams.find(t => t.id === id);
+}
+
+export function getTopAssists(category: Category): TopAssist[] {
+  return [
+    { name: "Lucas Silva", teamId: "brasil", assists: 4 },
+    { name: "Gabriel Mbappé", teamId: "franca", assists: 3 },
+    { name: "Pedro Iniesta", teamId: "espanha", assists: 3 },
+    { name: "Thiago Messi", teamId: "argentina", assists: 2 },
+    { name: "Kenji Tanaka", teamId: "japao", assists: 2 },
+    { name: "Youssef Hakimi", teamId: "marrocos", assists: 1 },
+  ];
+}
+
+export function getLeastConceded(category: Category): LeastConceded[] {
+  const standings = getStandings(category);
+  return standings
+    .map(s => ({ teamId: s.teamId, goalsAgainst: s.goalsAgainst, matchesPlayed: s.played }))
+    .sort((a, b) => a.goalsAgainst - b.goalsAgainst);
 }
