@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Trophy, Users, Calendar, Target, ChevronRight, Flame, Zap, Shield, Handshake } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import type { Category } from "@/data/teams";
 import logoCopa from "@/assets/logo-copa-sporting.jpeg";
 import { teams, categories, getMatches, getTopScorers, getTopAssists, getLeastConceded, getStandings, getTeamById } from "@/data/teams";
@@ -370,32 +370,8 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Patrocinadores */}
-      <section className="py-8 md:py-12 bg-card border-t border-border">
-        <div className="container px-3">
-          <h2 className="font-display text-lg font-bold text-foreground mb-1 uppercase tracking-wider text-center">Patrocinadores</h2>
-          <p className="text-xs text-muted-foreground text-center mb-6">Parceiros que fazem a Copa do Mundo Sporting acontecer</p>
-          <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8">
-            {(sponsors || []).map((sponsor) => (
-              <motion.a
-                key={sponsor.id}
-                href={sponsor.website_url || "#"}
-                target="_blank"
-                rel="noopener noreferrer"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="flex items-center justify-center bg-muted rounded-xl px-4 py-3 min-w-[120px] h-20 hover:shadow-sport border border-transparent hover:border-primary/30 transition-all"
-              >
-                {sponsor.logo_url ? (
-                  <img src={sponsor.logo_url} alt={sponsor.name} className="h-12 max-w-[120px] object-contain" loading="lazy" />
-                ) : (
-                  <span className="font-display text-sm font-bold text-muted-foreground">{sponsor.name}</span>
-                )}
-              </motion.a>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Patrocinadores — carrossel */}
+      <SponsorsCarousel sponsors={sponsors || []} />
     </div>
   );
 };
