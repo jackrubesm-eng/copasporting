@@ -187,7 +187,7 @@ const Index = () => {
               </button>
             ))}
           </div>
-          <div className="space-y-8 md:space-y-0 md:grid md:grid-cols-2 md:gap-8">
+          <div className="space-y-8 md:space-y-0 md:grid md:grid-cols-2 md:gap-8 md:items-start">
             <div>
               <h2 className="font-display text-lg font-bold text-foreground mb-3 uppercase tracking-wider flex items-center gap-2">
                 <Zap className="h-4 w-4 text-accent" /> Últimos Resultados
