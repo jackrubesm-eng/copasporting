@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,8 +8,10 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Save, Plus, Trash2, UserPlus } from "lucide-react";
+import { Save, Plus, Trash2, UserPlus, Check } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const eventTypes = [
   { value: "goal", label: "⚽ Gol" },
@@ -30,9 +32,12 @@ const AdminMatchReport = () => {
   const [eventType, setEventType] = useState("");
   const [eventTeamId, setEventTeamId] = useState("");
   const [eventMinute, setEventMinute] = useState("");
-  const [athleteSearch, setAthleteSearch] = useState("");
   const [selectedAthleteId, setSelectedAthleteId] = useState<string | null>(null);
-  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  // New athlete dialog
+  const [showNewAthlete, setShowNewAthlete] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newShirt, setNewShirt] = useState("");
 
   const { data: match } = useQuery({
     queryKey: ["admin-match", matchId],
@@ -74,21 +79,7 @@ const AdminMatchReport = () => {
     },
   });
 
-  // Filter athletes based on search and selected team
-  const filteredAthletes = useMemo(() => {
-    if (!athletes || !athleteSearch.trim()) return [];
-    const search = athleteSearch.toLowerCase().trim();
-    return athletes.filter(a => {
-      const matchesName = a.name.toLowerCase().includes(search);
-      const matchesTeam = !eventTeamId || a.team_id === eventTeamId;
-      return matchesName && matchesTeam;
-    });
-  }, [athletes, athleteSearch, eventTeamId]);
-
-  const exactMatch = useMemo(() => {
-    if (!athletes || !athleteSearch.trim()) return null;
-    return athletes.find(a => a.name.toLowerCase() === athleteSearch.toLowerCase().trim() && (!eventTeamId || a.team_id === eventTeamId));
-  }, [athletes, athleteSearch, eventTeamId]);
+  const teamAthletes = athletes?.filter(a => a.team_id === eventTeamId) || [];
 
   const saveMutation = useMutation({
     mutationFn: async () => {
@@ -107,54 +98,49 @@ const AdminMatchReport = () => {
     onError: () => toast.error("Erro ao salvar"),
   });
 
-  // Create athlete on the fly and then add the event
-  const createAthleteAndAddEvent = async () => {
-    if (!match || !eventTeamId || !athleteSearch.trim() || !eventType) return;
-
-    let athleteId = selectedAthleteId;
-
-    // If no athlete selected, create a new one
-    if (!athleteId) {
-      const { data: newAthlete, error: createError } = await supabase.from("athletes").insert({
-        name: athleteSearch.trim(),
+  const createAthleteMutation = useMutation({
+    mutationFn: async () => {
+      if (!match || !eventTeamId || !newName.trim()) return;
+      const { data, error } = await supabase.from("athletes").insert({
+        name: newName.trim(),
+        shirt_number: newShirt ? parseInt(newShirt) : null,
         team_id: eventTeamId,
         category_id: match.category_id,
       }).select("id").single();
-
-      if (createError) {
-        toast.error("Erro ao cadastrar atleta");
-        return;
-      }
-      athleteId = newAthlete.id;
-      toast.success(`Atleta "${athleteSearch.trim()}" cadastrado automaticamente!`);
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
       refetchAthletes();
-    }
-
-    // Now add the event
-    const { error } = await supabase.from("match_events").insert({
-      match_id: matchId!,
-      athlete_id: athleteId,
-      team_id: eventTeamId,
-      event_type: eventType,
-      minute: eventMinute ? parseInt(eventMinute) : null,
-    });
-
-    if (error) {
-      toast.error("Erro ao registrar evento");
-      return;
-    }
-
-    qc.invalidateQueries({ queryKey: ["admin-match-events", matchId] });
-    setEventType("");
-    setAthleteSearch("");
-    setSelectedAthleteId(null);
-    setEventMinute("");
-    setEventTeamId("");
-    toast.success("Evento registrado");
-  };
+      if (data) setSelectedAthleteId(data.id);
+      setShowNewAthlete(false);
+      setNewName("");
+      setNewShirt("");
+      toast.success("Atleta cadastrado!");
+    },
+    onError: () => toast.error("Erro ao cadastrar atleta"),
+  });
 
   const addEventMutation = useMutation({
-    mutationFn: createAthleteAndAddEvent,
+    mutationFn: async () => {
+      if (!selectedAthleteId || !eventType) return;
+      const { error } = await supabase.from("match_events").insert({
+        match_id: matchId!,
+        athlete_id: selectedAthleteId,
+        team_id: eventTeamId,
+        event_type: eventType,
+        minute: eventMinute ? parseInt(eventMinute) : null,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin-match-events", matchId] });
+      setEventType("");
+      setSelectedAthleteId(null);
+      setEventMinute("");
+      toast.success("Evento registrado");
+    },
+    onError: () => toast.error("Erro ao registrar evento"),
   });
 
   const deleteEventMutation = useMutation({
@@ -168,111 +154,113 @@ const AdminMatchReport = () => {
 
   const homeName = (match as any).home?.short_name || "Casa";
   const awayName = (match as any).away?.short_name || "Fora";
-
-  const canAddEvent = eventType && eventTeamId && athleteSearch.trim();
+  const canAddEvent = eventType && eventTeamId && selectedAthleteId;
 
   return (
     <div>
       <h1 className="font-display text-2xl font-bold mb-2">Súmula</h1>
       <p className="text-muted-foreground mb-6">{match.categories?.name} — {homeName} vs {awayName}</p>
 
-      <div className="grid md:grid-cols-2 gap-6 mb-6">
-        <Card>
-          <CardHeader><CardTitle className="text-lg">Placar</CardTitle></CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div><Label>{homeName}</Label><Input type="number" min={0} value={homeScore} onChange={e => setHomeScore(e.target.value)} /></div>
-              <div><Label>{awayName}</Label><Input type="number" min={0} value={awayScore} onChange={e => setAwayScore(e.target.value)} /></div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div><Label>Pênaltis ({homeName})</Label><Input type="number" min={0} value={homePen} onChange={e => setHomePen(e.target.value)} /></div>
-              <div><Label>Pênaltis ({awayName})</Label><Input type="number" min={0} value={awayPen} onChange={e => setAwayPen(e.target.value)} /></div>
-            </div>
-            <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending} className="w-full">
-              <Save className="h-4 w-4 mr-1" /> Salvar Placar
-            </Button>
-          </CardContent>
-        </Card>
+      {/* Placar */}
+      <Card className="mb-6">
+        <CardHeader><CardTitle className="text-lg">Placar</CardTitle></CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div><Label>{homeName}</Label><Input type="number" min={0} value={homeScore} onChange={e => setHomeScore(e.target.value)} /></div>
+            <div><Label>{awayName}</Label><Input type="number" min={0} value={awayScore} onChange={e => setAwayScore(e.target.value)} /></div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div><Label>Pênaltis ({homeName})</Label><Input type="number" min={0} value={homePen} onChange={e => setHomePen(e.target.value)} /></div>
+            <div><Label>Pênaltis ({awayName})</Label><Input type="number" min={0} value={awayPen} onChange={e => setAwayPen(e.target.value)} /></div>
+          </div>
+          <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending} className="w-full">
+            <Save className="h-4 w-4 mr-1" /> Salvar Placar
+          </Button>
+        </CardContent>
+      </Card>
 
-        <Card>
-          <CardHeader><CardTitle className="text-lg">Registrar Evento</CardTitle></CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>Tipo</Label>
-                <Select value={eventType} onValueChange={setEventType}>
-                  <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
-                  <SelectContent>{eventTypes.map(e => <SelectItem key={e.value} value={e.value}>{e.label}</SelectItem>)}</SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label>Time</Label>
-                <Select value={eventTeamId} onValueChange={(v) => { setEventTeamId(v); setSelectedAthleteId(null); }}>
-                  <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={match.home_team_id}>{homeName}</SelectItem>
-                    <SelectItem value={match.away_team_id}>{awayName}</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+      {/* Registrar Evento */}
+      <Card className="mb-6">
+        <CardHeader><CardTitle className="text-lg">Registrar Evento</CardTitle></CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label>Tipo</Label>
+              <Select value={eventType} onValueChange={setEventType}>
+                <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+                <SelectContent>{eventTypes.map(e => <SelectItem key={e.value} value={e.value}>{e.label}</SelectItem>)}</SelectContent>
+              </Select>
             </div>
+            <div>
+              <Label>Minuto</Label>
+              <Input type="number" min={0} value={eventMinute} onChange={e => setEventMinute(e.target.value)} placeholder="Ex: 15" />
+            </div>
+          </div>
 
-            <div className="relative">
-              <Label>Atleta (digite o nome)</Label>
-              <Input
-                placeholder="Ex: Fernando Monteiro"
-                value={athleteSearch}
-                onChange={(e) => {
-                  setAthleteSearch(e.target.value);
-                  setSelectedAthleteId(null);
-                  setShowSuggestions(true);
-                }}
-                onFocus={() => setShowSuggestions(true)}
-                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-              />
-              {showSuggestions && athleteSearch.trim() && filteredAthletes.length > 0 && (
-                <div className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-md shadow-lg max-h-48 overflow-y-auto">
-                  {filteredAthletes.map(a => (
+          <div>
+            <Label>Time</Label>
+            <Select value={eventTeamId} onValueChange={(v) => { setEventTeamId(v); setSelectedAthleteId(null); }}>
+              <SelectTrigger><SelectValue placeholder="Selecione o time" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value={match.home_team_id}>{homeName}</SelectItem>
+                <SelectItem value={match.away_team_id}>{awayName}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Lista de atletas do time selecionado */}
+          {eventTeamId && (
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <Label>Atleta</Label>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-7 text-xs gap-1"
+                  onClick={() => setShowNewAthlete(true)}
+                >
+                  <UserPlus className="h-3 w-3" /> Novo Atleta
+                </Button>
+              </div>
+
+              {teamAthletes.length === 0 ? (
+                <div className="text-center py-4 border border-dashed border-border rounded-md">
+                  <p className="text-sm text-muted-foreground mb-2">Nenhum atleta cadastrado neste time</p>
+                  <Button variant="outline" size="sm" onClick={() => setShowNewAthlete(true)}>
+                    <Plus className="h-4 w-4 mr-1" /> Cadastrar Primeiro Atleta
+                  </Button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
+                  {teamAthletes.map(a => (
                     <button
                       key={a.id}
-                      className="w-full text-left px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        setAthleteSearch(a.name);
-                        setSelectedAthleteId(a.id);
-                        if (!eventTeamId) setEventTeamId(a.team_id);
-                        setShowSuggestions(false);
-                      }}
+                      onClick={() => setSelectedAthleteId(a.id === selectedAthleteId ? null : a.id)}
+                      className={cn(
+                        "flex items-center gap-2 p-2 rounded-md border text-left text-sm transition-colors",
+                        a.id === selectedAthleteId
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border hover:border-primary/40"
+                      )}
                     >
-                      <span className="font-medium">#{a.shirt_number} {a.name}</span>
-                      <span className="text-muted-foreground ml-2">({(a as any).teams?.short_name})</span>
+                      {a.id === selectedAthleteId && <Check className="h-3 w-3 shrink-0" />}
+                      <span className="truncate">
+                        {a.shirt_number ? `#${a.shirt_number} ` : ""}{a.name}
+                      </span>
                     </button>
                   ))}
                 </div>
               )}
-              {athleteSearch.trim() && !selectedAthleteId && !exactMatch && eventTeamId && (
-                <p className="text-xs text-warning mt-1 flex items-center gap-1">
-                  <UserPlus className="h-3 w-3" />
-                  Atleta será cadastrado automaticamente
-                </p>
-              )}
-              {selectedAthleteId && (
-                <p className="text-xs text-primary mt-1">✓ Atleta já cadastrado</p>
-              )}
             </div>
+          )}
 
-            <div>
-              <Label>Minuto (opcional)</Label>
-              <Input type="number" min={0} value={eventMinute} onChange={e => setEventMinute(e.target.value)} placeholder="Ex: 15" />
-            </div>
+          <Button onClick={() => addEventMutation.mutate()} disabled={!canAddEvent || addEventMutation.isPending} className="w-full">
+            <Plus className="h-4 w-4 mr-1" /> Adicionar Evento
+          </Button>
+        </CardContent>
+      </Card>
 
-            <Button onClick={() => addEventMutation.mutate()} disabled={!canAddEvent || addEventMutation.isPending} className="w-full">
-              <Plus className="h-4 w-4 mr-1" /> Adicionar Evento
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-
+      {/* Eventos */}
       <Card>
         <CardHeader><CardTitle className="text-lg">Eventos da Partida</CardTitle></CardHeader>
         <CardContent>
@@ -307,6 +295,31 @@ const AdminMatchReport = () => {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Dialog para cadastrar novo atleta */}
+      <Dialog open={showNewAthlete} onOpenChange={setShowNewAthlete}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Cadastrar Novo Atleta</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Nome</Label>
+              <Input placeholder="Nome completo" value={newName} onChange={e => setNewName(e.target.value)} />
+            </div>
+            <div>
+              <Label>Nº Camisa (opcional)</Label>
+              <Input type="number" min={0} placeholder="Ex: 10" value={newShirt} onChange={e => setNewShirt(e.target.value)} />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Time: {eventTeamId === match.home_team_id ? homeName : awayName} · Categoria: {match.categories?.name}
+            </p>
+            <Button onClick={() => createAthleteMutation.mutate()} disabled={!newName.trim() || createAthleteMutation.isPending} className="w-full">
+              <UserPlus className="h-4 w-4 mr-1" /> Cadastrar
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
