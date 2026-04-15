@@ -32,7 +32,7 @@ const SponsorsCarousel = ({ sponsors }: { sponsors: Sponsor[] }) => {
         </p>
 
         {/* Carrossel central */}
-        <div className="relative h-28 flex items-center justify-center overflow-hidden mb-6">
+        <div className="relative h-36 flex items-center justify-center overflow-hidden mb-6">
           <AnimatePresence mode="wait">
             <motion.a
               key={sponsors[current]?.id}
