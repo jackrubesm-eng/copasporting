@@ -1,11 +1,11 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Trophy, Users, Calendar, Target, ChevronRight, Flame, Zap } from "lucide-react";
+import { Trophy, Users, Calendar, Target, ChevronRight, Flame, Zap, Shield, Handshake } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import type { Category } from "@/data/teams";
 import logoCopa from "@/assets/logo-copa-sporting.jpeg";
-import { teams, categories, getMatches, getTopScorers, getStandings, getTeamById } from "@/data/teams";
+import { teams, categories, getMatches, getTopScorers, getTopAssists, getLeastConceded, getStandings, getTeamById } from "@/data/teams";
 import { supabase } from "@/integrations/supabase/client";
 import MatchCard from "@/components/MatchCard";
 import StandingsTable from "@/components/StandingsTable";
@@ -28,6 +28,7 @@ const Index = () => {
   const [matchCat, setMatchCat] = useState<Category>("Pré-mirim");
   const [scorerCat, setScorerCat] = useState<Category>("Pré-mirim");
   const [standingsCat, setStandingsCat] = useState<Category>("Pré-mirim");
+  const [statTab, setStatTab] = useState<"gols" | "assists" | "defesa">("gols");
 
   const recentMatches = getMatches(matchCat).filter(m => m.status === "finished").slice(0, 3);
   const nextMatches = getMatches(matchCat).filter(m => m.status === "scheduled").slice(0, 3);
