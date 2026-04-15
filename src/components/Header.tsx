@@ -19,10 +19,10 @@ const Header = () => {
     <header className="sticky top-0 z-50 bg-field border-b border-primary/20 backdrop-blur-sm">
       <div className="container flex items-center justify-between h-16">
         <Link to="/" className="flex items-center gap-2">
-          <img src={logoCopa} alt="Copa Sporting 2026" className="h-12 w-12 rounded-full object-cover" />
+          <img src={logoCopa} alt="Copa do Mundo Sporting" className="h-12 w-12 rounded-full object-cover" />
           <div>
-            <span className="font-display text-lg font-bold text-field-foreground tracking-wide">COPA SPORTING</span>
-            <span className="block text-xs text-primary font-body -mt-1">Copa do Mundo Esporte • 2026</span>
+            <span className="font-display text-lg font-bold text-field-foreground tracking-wide">COPA DO MUNDO</span>
+            <span className="block text-xs text-primary font-body -mt-1">SPORTING</span>
           </div>
         </Link>
 

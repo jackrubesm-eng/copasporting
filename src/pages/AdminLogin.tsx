@@ -30,7 +30,7 @@ const AdminLogin = () => {
     <div className="min-h-screen bg-field flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <img src={logoCopa} alt="Copa Sporting" className="h-20 w-20 mx-auto rounded-xl object-cover mb-4" />
+          <img src={logoCopa} alt="Copa do Mundo Sporting" className="h-20 w-20 mx-auto rounded-xl object-cover mb-4" />
           <CardTitle className="font-display text-2xl">Área Administrativa</CardTitle>
         </CardHeader>
         <CardContent>
