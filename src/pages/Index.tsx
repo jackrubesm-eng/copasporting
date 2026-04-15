@@ -2,7 +2,8 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Trophy, Users, Calendar, Target, ChevronRight, Flame, Zap } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import type { Category } from "@/data/teams";
 import logoCopa from "@/assets/logo-copa-sporting.jpeg";
 import { teams, categories, getMatches, getTopScorers } from "@/data/teams";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,9 +24,12 @@ const stagger = {
 
 const Index = () => {
   const qc = useQueryClient();
-  const recentMatches = getMatches("Pré-mirim").filter(m => m.status === "finished").slice(0, 3);
-  const nextMatches = getMatches("Pré-mirim").filter(m => m.status === "scheduled").slice(0, 3);
-  const topScorers = getTopScorers("Pré-mirim").slice(0, 5);
+  const [matchCat, setMatchCat] = useState<Category>("Pré-mirim");
+  const [scorerCat, setScorerCat] = useState<Category>("Pré-mirim");
+
+  const recentMatches = getMatches(matchCat).filter(m => m.status === "finished").slice(0, 3);
+  const nextMatches = getMatches(matchCat).filter(m => m.status === "scheduled").slice(0, 3);
+  const topScorers = getTopScorers(scorerCat).slice(0, 5);
 
   const { data: sponsors } = useQuery({
     queryKey: ["sponsors"],
@@ -163,30 +167,47 @@ const Index = () => {
 
       {/* Matches — stacked on mobile */}
       <section className="bg-muted py-8 md:py-12">
-        <div className="container px-3 space-y-8 md:space-y-0 md:grid md:grid-cols-2 md:gap-8">
-          <div>
-            <h2 className="font-display text-lg font-bold text-foreground mb-3 uppercase tracking-wider flex items-center gap-2">
-              <Zap className="h-4 w-4 text-accent" /> Últimos Resultados
-            </h2>
-            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="space-y-2">
-              {recentMatches.map((m, i) => (
-                <motion.div key={m.id} variants={fadeUp} custom={i}>
-                  <MatchCard match={m} />
-                </motion.div>
-              ))}
-            </motion.div>
+        <div className="container px-3">
+          <div className="flex gap-2 mb-4 overflow-x-auto scrollbar-hide">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setMatchCat(cat)}
+                className={`px-3 py-1.5 rounded-full text-xs font-display uppercase tracking-wider whitespace-nowrap transition-all active:scale-95 ${
+                  matchCat === cat
+                    ? "bg-primary text-primary-foreground shadow-sport"
+                    : "bg-card text-muted-foreground border border-border hover:border-primary/40"
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
           </div>
-          <div>
-            <h2 className="font-display text-lg font-bold text-foreground mb-3 uppercase tracking-wider flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-secondary" /> Próximos Jogos
-            </h2>
-            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="space-y-2">
-              {nextMatches.map((m, i) => (
-                <motion.div key={m.id} variants={fadeUp} custom={i}>
-                  <MatchCard match={m} />
-                </motion.div>
-              ))}
-            </motion.div>
+          <div className="space-y-8 md:space-y-0 md:grid md:grid-cols-2 md:gap-8">
+            <div>
+              <h2 className="font-display text-lg font-bold text-foreground mb-3 uppercase tracking-wider flex items-center gap-2">
+                <Zap className="h-4 w-4 text-accent" /> Últimos Resultados
+              </h2>
+              <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="space-y-2" key={`recent-${matchCat}`}>
+                {recentMatches.length > 0 ? recentMatches.map((m, i) => (
+                  <motion.div key={m.id} variants={fadeUp} custom={i}>
+                    <MatchCard match={m} />
+                  </motion.div>
+                )) : <p className="text-sm text-muted-foreground py-4 text-center">Nenhum resultado ainda</p>}
+              </motion.div>
+            </div>
+            <div>
+              <h2 className="font-display text-lg font-bold text-foreground mb-3 uppercase tracking-wider flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-secondary" /> Próximos Jogos
+              </h2>
+              <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="space-y-2" key={`next-${matchCat}`}>
+                {nextMatches.length > 0 ? nextMatches.map((m, i) => (
+                  <motion.div key={m.id} variants={fadeUp} custom={i}>
+                    <MatchCard match={m} />
+                  </motion.div>
+                )) : <p className="text-sm text-muted-foreground py-4 text-center">Nenhum jogo agendado</p>}
+              </motion.div>
+            </div>
           </div>
         </div>
       </section>
@@ -196,6 +217,21 @@ const Index = () => {
         <h2 className="font-display text-lg font-bold text-foreground mb-3 uppercase tracking-wider flex items-center gap-2">
           <Flame className="h-4 w-4 text-accent" /> Artilheiros
         </h2>
+        <div className="flex gap-2 mb-4 overflow-x-auto scrollbar-hide">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setScorerCat(cat)}
+              className={`px-3 py-1.5 rounded-full text-xs font-display uppercase tracking-wider whitespace-nowrap transition-all active:scale-95 ${
+                scorerCat === cat
+                  ? "bg-primary text-primary-foreground shadow-sport"
+                  : "bg-card text-muted-foreground border border-border hover:border-primary/40"
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -218,7 +254,7 @@ const Index = () => {
                 {team && <img src={team.logo} alt={team.shortName} className="h-8 w-8 rounded-full object-cover ring-2 ring-border" loading="lazy" />}
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-foreground text-sm truncate">{scorer.name}</p>
-                  <p className="text-xs text-muted-foreground">{team?.shortName} • Pré-mirim</p>
+                  <p className="text-xs text-muted-foreground">{team?.shortName} • {scorerCat}</p>
                 </div>
                 <div className="flex items-baseline gap-1">
                   <span className="font-display text-xl font-bold text-primary">{scorer.goals}</span>
