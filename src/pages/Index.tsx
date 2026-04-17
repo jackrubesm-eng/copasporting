@@ -329,66 +329,12 @@ const Index = () => {
             </button>
           ))}
         </div>
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={stagger}
+        <div
           className="bg-card border border-border rounded-xl overflow-hidden shadow-card-sport"
           key={`${statTab}-${scorerCat}`}
         >
-          {statTab === "gols" && getTopScorers(scorerCat).slice(0, 5).map((scorer, i) => {
-            const team = teams.find(t => t.id === scorer.teamId);
-            return (
-              <motion.div key={i} variants={fadeUp} custom={i} className={`flex items-center gap-3 px-3 py-3 ${i > 0 ? "border-t border-border" : ""}`}>
-                <span className={`font-display font-bold text-lg w-7 text-center ${i === 0 ? "text-secondary" : i < 3 ? "text-primary" : "text-muted-foreground"}`}>{i + 1}º</span>
-                {team && <img src={team.logo} alt={team.shortName} className="h-8 w-8 rounded-full object-cover ring-2 ring-border" loading="lazy" />}
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-foreground text-sm truncate">{scorer.name}</p>
-                  <p className="text-xs text-muted-foreground">{team?.shortName} • {scorerCat}</p>
-                </div>
-                <div className="flex items-baseline gap-1">
-                  <span className="font-display text-xl font-bold text-primary">{scorer.goals}</span>
-                  <span className="text-[10px] text-muted-foreground">gols</span>
-                </div>
-              </motion.div>
-            );
-          })}
-          {statTab === "assists" && getTopAssists(scorerCat).slice(0, 5).map((player, i) => {
-            const team = teams.find(t => t.id === player.teamId);
-            return (
-              <motion.div key={i} variants={fadeUp} custom={i} className={`flex items-center gap-3 px-3 py-3 ${i > 0 ? "border-t border-border" : ""}`}>
-                <span className={`font-display font-bold text-lg w-7 text-center ${i === 0 ? "text-secondary" : i < 3 ? "text-primary" : "text-muted-foreground"}`}>{i + 1}º</span>
-                {team && <img src={team.logo} alt={team.shortName} className="h-8 w-8 rounded-full object-cover ring-2 ring-border" loading="lazy" />}
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-foreground text-sm truncate">{player.name}</p>
-                  <p className="text-xs text-muted-foreground">{team?.shortName} • {scorerCat}</p>
-                </div>
-                <div className="flex items-baseline gap-1">
-                  <span className="font-display text-xl font-bold text-primary">{player.assists}</span>
-                  <span className="text-[10px] text-muted-foreground">assist.</span>
-                </div>
-              </motion.div>
-            );
-          })}
-          {statTab === "defesa" && getLeastConceded(scorerCat).slice(0, 5).map((entry, i) => {
-            const team = getTeamById(entry.teamId);
-            return (
-              <motion.div key={i} variants={fadeUp} custom={i} className={`flex items-center gap-3 px-3 py-3 ${i > 0 ? "border-t border-border" : ""}`}>
-                <span className={`font-display font-bold text-lg w-7 text-center ${i === 0 ? "text-secondary" : i < 3 ? "text-primary" : "text-muted-foreground"}`}>{i + 1}º</span>
-                {team && <img src={team.logo} alt={team.shortName} className="h-8 w-8 rounded-full object-cover ring-2 ring-border" loading="lazy" />}
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-foreground text-sm truncate">{team?.name}</p>
-                  <p className="text-xs text-muted-foreground">{entry.matchesPlayed} jogos • {scorerCat}</p>
-                </div>
-                <div className="flex items-baseline gap-1">
-                  <span className="font-display text-xl font-bold text-primary">{entry.goalsAgainst}</span>
-                  <span className="text-[10px] text-muted-foreground">gols sofridos</span>
-                </div>
-              </motion.div>
-            );
-          })}
-        </motion.div>
+          <LiveStats categoryId={scorerCatId} categoryLabel={scorerCat} mode={statTab} />
+        </div>
       </section>
 
       {/* Seleções Participantes */}
