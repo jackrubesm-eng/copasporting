@@ -74,7 +74,7 @@ const LiveStats = ({ categoryId, categoryLabel, mode }: Props) => {
 
       const { data: athletes } = await supabase
         .from("athletes")
-        .select("id, name, team_id")
+        .select("id, name, team_id, photo_url")
         .in("id", athleteIds);
       const teamIds = Array.from(new Set((athletes || []).map((a) => a.team_id)));
       const { data: dbTeams } = await supabase
@@ -87,6 +87,7 @@ const LiveStats = ({ categoryId, categoryLabel, mode }: Props) => {
         .map((a) => ({
           athleteId: a.id,
           name: a.name,
+          photo: a.photo_url,
           team: teamMap.get(a.team_id),
           count: counts.get(a.id) || 0,
         }))
@@ -129,7 +130,12 @@ const LiveStats = ({ categoryId, categoryLabel, mode }: Props) => {
       {(data as any[]).map((p, i) => (
         <motion.div key={p.athleteId} variants={fadeUp} custom={i} initial="hidden" animate="visible" className={`flex items-center gap-3 px-3 py-3 ${i > 0 ? "border-t border-border" : ""}`}>
           <span className={`font-display font-bold text-lg w-7 text-center ${i === 0 ? "text-secondary" : i < 3 ? "text-primary" : "text-muted-foreground"}`}>{i + 1}º</span>
-          <img src={p.team?.logo_url || placeholder} alt={p.team?.short_name || ""} className="h-8 w-8 rounded-full object-cover ring-2 ring-border" loading="lazy" />
+          <div className="relative shrink-0">
+            <img src={p.photo || placeholder} alt={p.name} className="h-10 w-10 rounded-full object-cover ring-2 ring-border bg-muted" loading="lazy" />
+            {p.team?.logo_url && (
+              <img src={p.team.logo_url} alt={p.team?.short_name || ""} className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full object-cover ring-1 ring-background" loading="lazy" />
+            )}
+          </div>
           <div className="flex-1 min-w-0">
             <p className="font-medium text-foreground text-sm truncate">{p.name}</p>
             <p className="text-xs text-muted-foreground">{p.team?.short_name} • {categoryLabel}</p>
