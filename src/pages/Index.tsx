@@ -233,29 +233,29 @@ const Index = () => {
               </button>
             ))}
           </div>
-          <div className="space-y-8 md:space-y-0 md:grid md:grid-cols-2 md:gap-8 md:items-start">
-            <div className="glass-panel rounded-2xl p-4 md:p-5 shadow-card-sport">
+          <div className="space-y-8 md:space-y-0 md:grid md:grid-cols-2 md:gap-8 md:items-stretch">
+            <div className="glass-panel rounded-2xl p-4 md:p-5 shadow-card-sport h-full flex flex-col">
               <h2 className="font-display text-lg font-bold text-foreground mb-3 uppercase tracking-wider flex items-center gap-2">
                 <Zap className="h-4 w-4 text-accent" /> Últimos Resultados
               </h2>
-              <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="space-y-2" key={`recent-${matchCat}`}>
+              <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="space-y-2 flex-1" key={`recent-${matchCat}`}>
                 {recentMatches.length > 0 ? recentMatches.map((m, i) => (
                   <motion.div key={m.id} variants={fadeUp} custom={i}>
                     <LiveMatchCard match={m} />
                   </motion.div>
-                )) : <p className="text-sm text-muted-foreground py-4 text-center">Nenhum resultado ainda</p>}
+                )) : <p className="text-sm text-muted-foreground min-h-[132px] flex items-center justify-center text-center">Nenhum resultado ainda</p>}
               </motion.div>
             </div>
-            <div className="glass-panel rounded-2xl p-4 md:p-5 shadow-card-sport">
+            <div className="glass-panel rounded-2xl p-4 md:p-5 shadow-card-sport h-full flex flex-col">
               <h2 className="font-display text-lg font-bold text-foreground mb-3 uppercase tracking-wider flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-secondary" /> Próximos Jogos
               </h2>
-              <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="space-y-2" key={`next-${matchCat}`}>
+              <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="space-y-2 flex-1" key={`next-${matchCat}`}>
                 {nextMatches.length > 0 ? nextMatches.map((m, i) => (
                   <motion.div key={m.id} variants={fadeUp} custom={i}>
                     <LiveMatchCard match={m} />
                   </motion.div>
-                )) : <p className="text-sm text-muted-foreground py-4 text-center">Nenhum jogo agendado</p>}
+                )) : <p className="text-sm text-muted-foreground min-h-[132px] flex items-center justify-center text-center">Nenhum jogo agendado</p>}
               </motion.div>
             </div>
           </div>
