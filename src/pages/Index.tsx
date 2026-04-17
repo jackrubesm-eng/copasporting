@@ -285,7 +285,7 @@ const Index = () => {
             </button>
           ))}
         </div>
-        <StandingsTable category={standingsCat} key={standingsCat} />
+        <LiveStandingsTable categoryId={standingsCatId} key={standingsCat} />
       </section>
 
       {/* Estatísticas */}
