@@ -31,9 +31,48 @@ const Index = () => {
   const [standingsCat, setStandingsCat] = useState<Category>("Pré-mirim");
   const [statTab, setStatTab] = useState<"gols" | "assists" | "defesa">("gols");
 
-  const recentMatches = getMatches(matchCat).filter(m => m.status === "finished").slice(0, 3);
-  const nextMatches = getMatches(matchCat).filter(m => m.status === "scheduled").slice(0, 3);
   const topScorers = getTopScorers(scorerCat).slice(0, 5);
+
+  // Carrega categoria selecionada do banco para mapear o id
+  const { data: dbCategories } = useQuery({
+    queryKey: ["home-categories"],
+    queryFn: async () => {
+      const { data } = await supabase.from("categories").select("id, name");
+      return data || [];
+    },
+  });
+  const currentCatId = dbCategories?.find((c) => c.name === matchCat)?.id;
+
+  // Partidas reais do banco para a categoria selecionada
+  const { data: dbMatches } = useQuery({
+    queryKey: ["home-matches", currentCatId],
+    enabled: !!currentCatId,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("matches")
+        .select("id, status, round, match_date, home_score, away_score, home_penalties, away_penalties, decided_by, home_team_id, away_team_id")
+        .eq("category_id", currentCatId!)
+        .order("match_date", { ascending: false, nullsFirst: false });
+      if (!data) return [];
+      const teamIds = Array.from(new Set(data.flatMap((m) => [m.home_team_id, m.away_team_id])));
+      const { data: dbTeams } = await supabase
+        .from("teams")
+        .select("id, name, short_name, logo_url")
+        .in("id", teamIds);
+      const teamMap = new Map((dbTeams || []).map((t) => [t.id, t]));
+      return data.map((m) => ({
+        ...m,
+        home_team: teamMap.get(m.home_team_id) || null,
+        away_team: teamMap.get(m.away_team_id) || null,
+      }));
+    },
+  });
+
+  const recentMatches = (dbMatches || []).filter((m) => m.status === "finished").slice(0, 3);
+  const nextMatches = (dbMatches || [])
+    .filter((m) => m.status === "scheduled")
+    .sort((a, b) => (a.match_date || "").localeCompare(b.match_date || ""))
+    .slice(0, 3);
 
   const { data: sponsors } = useQuery({
     queryKey: ["sponsors"],
