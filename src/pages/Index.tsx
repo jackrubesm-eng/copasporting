@@ -7,7 +7,7 @@ import type { Category } from "@/data/teams";
 import logoCopa from "@/assets/logo-copa-sporting.png";
 import { teams, categories, getMatches, getTopScorers, getTopAssists, getLeastConceded, getStandings, getTeamById } from "@/data/teams";
 import { supabase } from "@/integrations/supabase/client";
-import MatchCard from "@/components/MatchCard";
+import LiveMatchCard from "@/components/LiveMatchCard";
 import StandingsTable from "@/components/StandingsTable";
 import SponsorsCarousel from "@/components/SponsorsCarousel";
 
