@@ -87,6 +87,7 @@ const LiveStats = ({ categoryId, categoryLabel, mode }: Props) => {
         .map((a) => ({
           athleteId: a.id,
           name: a.name,
+          photo: a.photo_url,
           team: teamMap.get(a.team_id),
           count: counts.get(a.id) || 0,
         }))
