@@ -8,7 +8,8 @@ import logoCopa from "@/assets/logo-copa-sporting.png";
 import { teams, categories, getMatches, getTopScorers, getTopAssists, getLeastConceded, getStandings, getTeamById } from "@/data/teams";
 import { supabase } from "@/integrations/supabase/client";
 import LiveMatchCard from "@/components/LiveMatchCard";
-import StandingsTable from "@/components/StandingsTable";
+import LiveStandingsTable from "@/components/LiveStandingsTable";
+import LiveStats from "@/components/LiveStats";
 import SponsorsCarousel from "@/components/SponsorsCarousel";
 
 const fadeUp = {
@@ -42,6 +43,8 @@ const Index = () => {
     },
   });
   const currentCatId = dbCategories?.find((c) => c.name === matchCat)?.id;
+  const standingsCatId = dbCategories?.find((c) => c.name === standingsCat)?.id;
+  const scorerCatId = dbCategories?.find((c) => c.name === scorerCat)?.id;
 
   // Partidas reais do banco para a categoria selecionada
   const { data: dbMatches } = useQuery({
