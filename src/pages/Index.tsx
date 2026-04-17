@@ -241,7 +241,7 @@ const Index = () => {
               <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="space-y-2" key={`recent-${matchCat}`}>
                 {recentMatches.length > 0 ? recentMatches.map((m, i) => (
                   <motion.div key={m.id} variants={fadeUp} custom={i}>
-                    <MatchCard match={m} />
+                    <LiveMatchCard match={m} />
                   </motion.div>
                 )) : <p className="text-sm text-muted-foreground py-4 text-center">Nenhum resultado ainda</p>}
               </motion.div>
@@ -253,7 +253,7 @@ const Index = () => {
               <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="space-y-2" key={`next-${matchCat}`}>
                 {nextMatches.length > 0 ? nextMatches.map((m, i) => (
                   <motion.div key={m.id} variants={fadeUp} custom={i}>
-                    <MatchCard match={m} />
+                    <LiveMatchCard match={m} />
                   </motion.div>
                 )) : <p className="text-sm text-muted-foreground py-4 text-center">Nenhum jogo agendado</p>}
               </motion.div>
