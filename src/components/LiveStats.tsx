@@ -131,9 +131,9 @@ const LiveStats = ({ categoryId, categoryLabel, mode }: Props) => {
         <motion.div key={p.athleteId} variants={fadeUp} custom={i} initial="hidden" animate="visible" className={`flex items-center gap-3 px-3 py-3 ${i > 0 ? "border-t border-border" : ""}`}>
           <span className={`font-display font-bold text-lg w-7 text-center ${i === 0 ? "text-secondary" : i < 3 ? "text-primary" : "text-muted-foreground"}`}>{i + 1}º</span>
           <div className="relative shrink-0">
-            <img src={p.photo || placeholder} alt={p.name} className="h-10 w-10 rounded-full object-cover ring-2 ring-border bg-muted" loading="lazy" />
+            <img src={p.photo || placeholder} alt={p.name} className="h-14 w-14 rounded-full object-cover ring-2 ring-border bg-muted" loading="lazy" />
             {p.team?.logo_url && (
-              <img src={p.team.logo_url} alt={p.team?.short_name || ""} className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full object-cover ring-1 ring-background" loading="lazy" />
+              <img src={p.team.logo_url} alt={p.team?.short_name || ""} className="absolute -bottom-1 -right-1 h-7 w-7 rounded-full object-cover ring-2 ring-background bg-background" loading="lazy" />
             )}
           </div>
           <div className="flex-1 min-w-0">
