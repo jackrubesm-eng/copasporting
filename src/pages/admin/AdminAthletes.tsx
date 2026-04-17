@@ -7,8 +7,18 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
-import { Plus, Trash2, Pencil } from "lucide-react";
+import { Plus, Trash2, Pencil, Upload } from "lucide-react";
+
+const uploadPhoto = async (file: File): Promise<string> => {
+  const ext = file.name.split(".").pop();
+  const path = `athletes/${crypto.randomUUID()}.${ext}`;
+  const { error } = await supabase.storage.from("logos").upload(path, file, { upsert: true });
+  if (error) throw error;
+  const { data } = supabase.storage.from("logos").getPublicUrl(path);
+  return data.publicUrl;
+};
 
 const AdminAthletes = () => {
   const [name, setName] = useState("");
@@ -18,6 +28,8 @@ const AdminAthletes = () => {
   const [categoryId, setCategoryId] = useState("");
   const [shirtNumber, setShirtNumber] = useState("");
   const [position, setPosition] = useState("");
+  const [photoUrl, setPhotoUrl] = useState("");
+  const [uploading, setUploading] = useState(false);
   const [editAthlete, setEditAthlete] = useState<any>(null);
   const [eName, setEName] = useState("");
   const [eBirth, setEBirth] = useState("");
@@ -26,6 +38,8 @@ const AdminAthletes = () => {
   const [eCat, setECat] = useState("");
   const [eShirt, setEShirt] = useState("");
   const [ePos, setEPos] = useState("");
+  const [ePhoto, setEPhoto] = useState("");
+  const [eUploading, setEUploading] = useState(false);
   const qc = useQueryClient();
 
   const { data: teams } = useQuery({
@@ -46,6 +60,20 @@ const AdminAthletes = () => {
     },
   });
 
+  const handlePhoto = async (file: File | undefined, isEdit = false) => {
+    if (!file) return;
+    try {
+      isEdit ? setEUploading(true) : setUploading(true);
+      const url = await uploadPhoto(file);
+      isEdit ? setEPhoto(url) : setPhotoUrl(url);
+      toast.success("Foto enviada");
+    } catch {
+      toast.error("Erro no upload");
+    } finally {
+      isEdit ? setEUploading(false) : setUploading(false);
+    }
+  };
+
   const addMutation = useMutation({
     mutationFn: async () => {
       const { error } = await supabase.from("athletes").insert({
@@ -53,12 +81,13 @@ const AdminAthletes = () => {
         team_id: teamId, category_id: categoryId,
         shirt_number: shirtNumber ? parseInt(shirtNumber) : null,
         position: position || null,
+        photo_url: photoUrl || null,
       });
       if (error) throw error;
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-athletes"] });
-      setName(""); setBirthDate(""); setDocNumber(""); setShirtNumber(""); setPosition("");
+      setName(""); setBirthDate(""); setDocNumber(""); setShirtNumber(""); setPosition(""); setPhotoUrl("");
       toast.success("Atleta adicionado");
     },
     onError: () => toast.error("Erro ao adicionar atleta"),
@@ -72,6 +101,7 @@ const AdminAthletes = () => {
         team_id: eTeam, category_id: eCat,
         shirt_number: eShirt ? parseInt(eShirt) : null,
         position: ePos || null,
+        photo_url: ePhoto || null,
       }).eq("id", editAthlete.id);
       if (error) throw error;
     },
@@ -100,6 +130,7 @@ const AdminAthletes = () => {
     setECat(a.category_id);
     setEShirt(a.shirt_number?.toString() || "");
     setEPos(a.position || "");
+    setEPhoto(a.photo_url || "");
   };
 
   return (
@@ -109,6 +140,18 @@ const AdminAthletes = () => {
         <CardHeader><CardTitle className="text-lg">Novo Atleta</CardTitle></CardHeader>
         <CardContent>
           <form onSubmit={e => { e.preventDefault(); addMutation.mutate(); }} className="space-y-4">
+            <div className="flex items-center gap-4">
+              <Avatar className="h-16 w-16">
+                <AvatarImage src={photoUrl} />
+                <AvatarFallback>{name.charAt(0).toUpperCase() || "?"}</AvatarFallback>
+              </Avatar>
+              <div>
+                <Label htmlFor="photo-new" className="cursor-pointer inline-flex items-center gap-2 text-sm bg-muted hover:bg-muted/80 px-3 py-2 rounded-md">
+                  <Upload className="h-4 w-4" /> {uploading ? "Enviando..." : "Foto do atleta"}
+                </Label>
+                <input id="photo-new" type="file" accept="image/*" className="hidden" onChange={e => handlePhoto(e.target.files?.[0])} />
+              </div>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div><Label>Nome Completo</Label><Input value={name} onChange={e => setName(e.target.value)} required /></div>
               <div><Label>Data de Nascimento</Label><Input type="date" value={birthDate} onChange={e => setBirthDate(e.target.value)} /></div>
@@ -140,6 +183,10 @@ const AdminAthletes = () => {
         <div className="divide-y divide-border">
           {athletes?.map((a: any) => (
             <div key={a.id} className="flex items-center gap-3 px-4 py-3">
+              <Avatar className="h-10 w-10">
+                <AvatarImage src={a.photo_url || undefined} />
+                <AvatarFallback>{a.name.charAt(0)}</AvatarFallback>
+              </Avatar>
               <div className="flex-1 min-w-0">
                 <p className="font-medium truncate">{a.name} {a.shirt_number ? `#${a.shirt_number}` : ""}</p>
                 <p className="text-xs text-muted-foreground">{a.teams?.short_name} • {a.categories?.name} {a.position ? `• ${a.position}` : ""}</p>
@@ -159,6 +206,18 @@ const AdminAthletes = () => {
         <DialogContent>
           <DialogHeader><DialogTitle>Editar Atleta</DialogTitle></DialogHeader>
           <form onSubmit={e => { e.preventDefault(); updateMutation.mutate(); }} className="space-y-4">
+            <div className="flex items-center gap-4">
+              <Avatar className="h-16 w-16">
+                <AvatarImage src={ePhoto} />
+                <AvatarFallback>{eName.charAt(0).toUpperCase() || "?"}</AvatarFallback>
+              </Avatar>
+              <div>
+                <Label htmlFor="photo-edit" className="cursor-pointer inline-flex items-center gap-2 text-sm bg-muted hover:bg-muted/80 px-3 py-2 rounded-md">
+                  <Upload className="h-4 w-4" /> {eUploading ? "Enviando..." : "Trocar foto"}
+                </Label>
+                <input id="photo-edit" type="file" accept="image/*" className="hidden" onChange={e => handlePhoto(e.target.files?.[0], true)} />
+              </div>
+            </div>
             <div><Label>Nome</Label><Input value={eName} onChange={e => setEName(e.target.value)} required /></div>
             <div className="grid grid-cols-2 gap-4">
               <div><Label>Nascimento</Label><Input type="date" value={eBirth} onChange={e => setEBirth(e.target.value)} /></div>
