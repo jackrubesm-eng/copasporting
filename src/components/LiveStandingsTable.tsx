@@ -108,6 +108,7 @@ const LiveStandingsTable = ({ categoryId }: Props) => {
           <tr className="bg-field text-field-foreground">
             <th className="px-2 py-2.5 text-left font-display tracking-wider w-8">#</th>
             <th className="px-2 py-2.5 text-left font-display tracking-wider">Seleção</th>
+            <th className="px-2 py-2.5 text-center font-display tracking-wider font-bold">PTS</th>
             <th className="px-1.5 py-2.5 text-center font-display tracking-wider">J</th>
             <th className="px-1.5 py-2.5 text-center font-display tracking-wider">V</th>
             <th className="px-1.5 py-2.5 text-center font-display tracking-wider">E</th>
@@ -115,7 +116,6 @@ const LiveStandingsTable = ({ categoryId }: Props) => {
             <th className="px-1.5 py-2.5 text-center font-display tracking-wider hidden sm:table-cell">GP</th>
             <th className="px-1.5 py-2.5 text-center font-display tracking-wider hidden sm:table-cell">GC</th>
             <th className="px-1.5 py-2.5 text-center font-display tracking-wider">SG</th>
-            <th className="px-2 py-2.5 text-center font-display tracking-wider font-bold">PTS</th>
           </tr>
         </thead>
         <tbody>
@@ -136,6 +136,7 @@ const LiveStandingsTable = ({ categoryId }: Props) => {
                   <span className="font-medium text-foreground whitespace-nowrap text-xs">{s.short}</span>
                 </div>
               </td>
+              <td className="px-2 py-2.5 text-center font-display font-bold text-primary text-base">{s.points}</td>
               <td className="px-1.5 py-2.5 text-center text-muted-foreground">{s.played}</td>
               <td className="px-1.5 py-2.5 text-center text-muted-foreground">{s.wins}</td>
               <td className="px-1.5 py-2.5 text-center text-muted-foreground">{s.draws}</td>
@@ -143,7 +144,6 @@ const LiveStandingsTable = ({ categoryId }: Props) => {
               <td className="px-1.5 py-2.5 text-center text-muted-foreground hidden sm:table-cell">{s.gf}</td>
               <td className="px-1.5 py-2.5 text-center text-muted-foreground hidden sm:table-cell">{s.ga}</td>
               <td className="px-1.5 py-2.5 text-center text-muted-foreground">{s.gf - s.ga}</td>
-              <td className="px-2 py-2.5 text-center font-display font-bold text-primary text-base">{s.points}</td>
             </motion.tr>
           ))}
         </tbody>
