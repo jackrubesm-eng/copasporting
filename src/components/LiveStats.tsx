@@ -74,7 +74,7 @@ const LiveStats = ({ categoryId, categoryLabel, mode }: Props) => {
 
       const { data: athletes } = await supabase
         .from("athletes")
-        .select("id, name, team_id")
+        .select("id, name, team_id, photo_url")
         .in("id", athleteIds);
       const teamIds = Array.from(new Set((athletes || []).map((a) => a.team_id)));
       const { data: dbTeams } = await supabase
